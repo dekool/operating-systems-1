@@ -201,6 +201,9 @@ ENTRY(system_call)
 	jne tracesys
 	cmpl $(NR_syscalls),%eax
 	jae badsys
+	# before the system_call - check restriction
+	call restrict(%eax)  # I am not sure about the syntax - we should chekc it
+	# should check the return value - if it is negative, jump to badsys
 	call *SYMBOL_NAME(sys_call_table)(,%eax,4)
 	movl %eax,EAX(%esp)		# save the return value
 ENTRY(ret_from_sys_call)
@@ -649,6 +652,9 @@ ENTRY(sys_call_table)
 	.long SYMBOL_NAME(sys_ni_syscall)	/* 240 reserved for futex */
 	.long SYMBOL_NAME(sys_sched_setaffinity)
 	.long SYMBOL_NAME(sys_sched_getaffinity)
+	.long SYMBOL_NAME(sys_sc_restrict)  /* 243 */
+	.long SYMBOL_NAME(sys_set_proc_restriction) /* 244 */
+	.long SYMBOL_NAME(sys_get_process_log)  /* 245 */
 
 	.rept NR_syscalls-(.-sys_call_table)/4
 		.long SYMBOL_NAME(sys_ni_syscall)

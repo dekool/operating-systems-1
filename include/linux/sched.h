@@ -451,7 +451,28 @@ struct task_struct {
 
 /* journalling filesystem info */
 	void *journal_info;
+
+	/* add the new parameters for the HW */
+	int restriction_level;
+    fai* forbidden_log;
+    scr* restriction_list;
+    /* parameters to handle log */
+    int log_counter;
 };
+
+typedef struct sys_call_restriction {
+    int syscall_num;
+    int restriction_threshold;
+} scr;
+
+typedef struct forbidden_activity_info {
+    int syscall_num;
+    int syscall_restriction_threshold;
+    int proc_restriction_level;
+    int time;
+} fai;
+
+
 
 /*
  * Per process flags
@@ -556,6 +577,11 @@ extern struct exec_domain	default_exec_domain;
     blocked:		{{0}},						\
     alloc_lock:		SPIN_LOCK_UNLOCKED,				\
     journal_info:	NULL,						\
+    /* initializing all the new process parameters to NULL */
+    restriction_level:  NULL,                   \
+    forbidden_log: NULL,                        \
+    restriction_list: NULL,                     \
+    log_counter: 0
 }
 
 
