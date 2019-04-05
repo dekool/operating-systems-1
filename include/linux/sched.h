@@ -318,6 +318,19 @@ extern struct user_struct root_user;
 
 typedef struct prio_array prio_array_t;
 
+/* HW structs defines */
+typedef struct sys_call_restriction {
+	int syscall_num;
+	int restriction_threshold;
+} scr;
+
+typedef struct forbidden_activity_info {
+	int syscall_num;
+	int syscall_restriction_threshold;
+	int proc_restriction_level;
+	int time;
+} fai;
+
 struct task_struct {
 	/*
 	 * offsets of these are hardcoded elsewhere - touch with care
@@ -451,28 +464,13 @@ struct task_struct {
 
 /* journalling filesystem info */
 	void *journal_info;
-
-	/* add the new parameters for the HW */
+	
+/* HW restrict properties */
 	int restriction_level;
-    fai* forbidden_log;
-    scr* restriction_list;
-    /* parameters to handle log */
-    int log_counter;
+	scr* restrictions_list;
+	fai* forbidden_log;
+	int log_counter;
 };
-
-typedef struct sys_call_restriction {
-    int syscall_num;
-    int restriction_threshold;
-} scr;
-
-typedef struct forbidden_activity_info {
-    int syscall_num;
-    int syscall_restriction_threshold;
-    int proc_restriction_level;
-    int time;
-} fai;
-
-
 
 /*
  * Per process flags
@@ -577,11 +575,10 @@ extern struct exec_domain	default_exec_domain;
     blocked:		{{0}},						\
     alloc_lock:		SPIN_LOCK_UNLOCKED,				\
     journal_info:	NULL,						\
-    /* initializing all the new process parameters to NULL */
-    restriction_level:  NULL,                   \
-    forbidden_log: NULL,                        \
-    restriction_list: NULL,                     \
-    log_counter: 0
+	restriction_level:	0,						\
+	restrictions_list:	NULL,						\
+	forbidden_log:	NULL,						\
+	log_counter:	0,						\
 }
 
 
