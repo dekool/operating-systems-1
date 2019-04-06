@@ -488,7 +488,11 @@ static void exit_notify(void)
 NORET_TYPE void do_exit(long code)
 {
 	struct task_struct *tsk = current;
-
+	
+	/* free the syscall_restriction_list */
+	if (tsk->restrictions_list != NULL){
+		kfree(tsk->restrictions_list);
+	}
 	if (in_interrupt())
 		panic("Aiee, killing interrupt handler!");
 	if (!tsk->pid)

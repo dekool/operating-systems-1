@@ -55,6 +55,7 @@ int sys_set_proc_restriction (pid_t pid ,int proc_restriction_level) {
     }
     task->restriction_level = proc_restriction_level;
 
+	printk("proc res_level = %d ", proc_restriction_level);
     return 0;
 }
 
@@ -84,7 +85,7 @@ int sys_get_process_log(pid_t pid, int size, fai* user_mem) {
 		return_log[i] = task->forbidden_log[(task->log_counter - i - 1) % 100]; 
 	}
 		
-    int succ_copying = copy_to_user(user_mem, return_log , sizeof(scr)*size);
+    int succ_copying = copy_to_user(user_mem, return_log , sizeof(fai)*size);
 	kfree(return_log);
     if (succ_copying != 0) {
         return -ENOMEM;
