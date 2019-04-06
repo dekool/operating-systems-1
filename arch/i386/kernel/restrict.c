@@ -6,14 +6,16 @@ int restrict(int syscall_number) {
 		int syscall_threshold = get_syscall_threshold(syscall_number);
 		if(syscall_threshold >= 0 && current->restriction_level < syscall_threshold){
 			//saving in forbidden log 
-			int log_index = current->log_counter;
+			int log_index = (current->log_counter)%100;
 			current->forbidden_log[log_index].syscall_num = syscall_number;
 			current->forbidden_log[log_index].syscall_restriction_threshold = syscall_threshold;
 			current->forbidden_log[log_index].proc_restriction_level = current->restriction_level;
 			current->forbidden_log[log_index].time = (int)jiffies;
 			current->log_counter++;
-			if(current->log_counter == 100){
-				current->log_counter = 0;
+			/* next check is to keep the counter between 0 to 200, if we are above 100 we know there were
+				at least 100 restrictions and we can return the log for any size requested*/
+			if(current->log_counter > 200){
+				current->log_counter -= 100;
 			}
 			printk("restrict info: \n syscall_num = %d\n restriction threshold = %d\n proc level = %d\n time = %d\n", current->forbidden_log[log_index].syscall_num,
 				current->forbidden_log[log_index].syscall_restriction_threshold, current->forbidden_log[log_index].proc_restriction_level, current->forbidden_log[log_index].time);
