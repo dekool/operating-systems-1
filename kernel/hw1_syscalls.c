@@ -74,6 +74,9 @@ int sys_get_process_log(pid_t pid, int size, fai* user_mem) {
 	// our log in oraganized from oldest to newest and we need to return from newest to oldest
     
     fai* return_log = (fai*)kmalloc(sizeof(fai)*size, GFP_KERNEL); //allocating mem for organizing the output
+	if(return_log == NULL){
+		return -ENOMEM;
+	}
 	int i;
 	for(i = 0; i < size; i++){
 		/*our data should be in indexes (log_counter - size)mod100 to (log_counter - 1) mod100
