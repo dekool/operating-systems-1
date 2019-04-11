@@ -24,6 +24,9 @@ int sys_sc_restrict (pid_t pid ,int proc_restriction_level, scr* restrictions_li
     if (new_restriction_list == NULL) {
         return -ENOMEM;
     }
+    if (restrictions_list == NULL) {
+        return -EINVAL;
+    }
 	int succ_copying = copy_from_user(new_restriction_list, restrictions_list, sizeof(scr)*list_size);
     if (succ_copying != 0) {
 		kfree(new_restriction_list);
@@ -72,7 +75,8 @@ int sys_get_process_log(pid_t pid, int size, fai* user_mem) {
     if (size > task->log_counter || size < 0 || size > RESTRICT_LOG_SIZE) {
         return -EINVAL;
     }
-	// our log in oraganized from oldest to newest and we need to return from newest to oldest
+	// our log in oraganized from oldest to newest
+	// (and we also need to return from oldest to newest to get ascending order)
     
     fai* return_log = (fai*)kmalloc(sizeof(fai)*size, GFP_KERNEL); //allocating mem for organizing the output
 	if(return_log == NULL){
@@ -80,9 +84,8 @@ int sys_get_process_log(pid_t pid, int size, fai* user_mem) {
 	}
 	int i;
 	for(i = 0; i < size; i++){
-		/*our data should be in indexes (log_counter - size)mod100 to (log_counter - 1) mod100
-			we copy the data in opposite direction */
-		return_log[i] = task->forbidden_log[(task->log_counter - i - 1) % RESTRICT_LOG_SIZE];
+		/*our data should be in indexes (log_counter - size)mod100 to (log_counter - 1) mod100 */
+		return_log[i] = task->forbidden_log[(task->log_counter - size + i) % RESTRICT_LOG_SIZE];
 	}
 		
     int succ_copying = copy_to_user(user_mem, return_log , sizeof(fai)*size);
