@@ -69,7 +69,7 @@ int sys_get_process_log(pid_t pid, int size, fai* user_mem) {
         return -ESRCH;
     }
 	//TODO need to check what to do in case log_counter == 0 , should we return failure ?, in the documnets it says no.
-    if (size > task->log_counter || size < 0 || size > 100) { 
+    if (size > task->log_counter || size < 0 || size > RESTRICT_LOG_SIZE) {
         return -EINVAL;
     }
 	// our log in oraganized from oldest to newest and we need to return from newest to oldest
@@ -82,7 +82,7 @@ int sys_get_process_log(pid_t pid, int size, fai* user_mem) {
 	for(i = 0; i < size; i++){
 		/*our data should be in indexes (log_counter - size)mod100 to (log_counter - 1) mod100
 			we copy the data in opposite direction */
-		return_log[i] = task->forbidden_log[(task->log_counter - i - 1) % 100]; 
+		return_log[i] = task->forbidden_log[(task->log_counter - i - 1) % RESTRICT_LOG_SIZE];
 	}
 		
     int succ_copying = copy_to_user(user_mem, return_log , sizeof(fai)*size);

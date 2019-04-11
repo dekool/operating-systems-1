@@ -10,9 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73987426-9f14-466e-a67d-0d32f63fd83f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/arch/i386/kernel/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/arch/i386/kernel/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hw1_test.c" beforeDir="false" afterPath="$PROJECT_DIR$/hw1_test.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/fork.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/fork.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arch/i386/kernel/restrict.c" beforeDir="false" afterPath="$PROJECT_DIR$/arch/i386/kernel/restrict.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/linux/sched.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/linux/sched.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/hw1_syscalls.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/hw1_syscalls.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -28,8 +28,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/linux/sched.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="402">
-              <caret line="471" column="4" selection-start-line="471" selection-start-column="4" selection-end-line="471" selection-end-column="63" />
+            <state relative-caret-position="847">
+              <caret line="51" lean-forward="true" selection-start-line="51" selection-end-line="51" />
+              <folding>
+                <element signature="e#3738#28818#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -46,35 +49,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hw1_syscalls.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="27" column="13" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="13" />
+            <state relative-caret-position="51">
+              <caret line="3" column="16" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="16" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hw1_test.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="54" column="5" lean-forward="true" selection-start-line="54" selection-start-column="5" selection-end-line="54" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/kernel/Makefile">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/arch/i386/kernel/Makefile">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="8" />
+            <state relative-caret-position="440">
+              <caret line="61" column="5" lean-forward="true" selection-start-line="61" selection-start-column="5" selection-end-line="61" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -82,8 +67,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/arch/i386/kernel/restrict.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
-              <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
+            <state relative-caret-position="306">
+              <caret line="18" column="13" lean-forward="true" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -91,17 +76,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kernel/fork.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="283">
+            <state relative-caret-position="181">
               <caret line="708" column="52" lean-forward="true" selection-start-line="708" selection-start-column="52" selection-end-line="708" selection-end-column="52" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/kernel/hw1_syscalls.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="579">
-              <caret line="93" selection-start-line="93" selection-end-line="93" />
+            <state relative-caret-position="54">
+              <caret line="8" column="82" selection-start-line="8" selection-start-column="65" selection-end-line="8" selection-end-column="82" />
             </state>
           </provider>
         </entry>
@@ -124,12 +109,17 @@
       <find>do_fork</find>
       <find>syscall_trace</find>
       <find>hw1_syscalls</find>
-      <find>find</find>
-      <find>fork</find>
-      <find>errno</find>
-      <find>badsys</find>
+      <find>get_syscall_threshold</find>
       <find>entry</find>
+      <find>fork</find>
+      <find>find</find>
+      <find>100</find>
       <find>parent</find>
+      <find>badsys</find>
+      <find>_</find>
+      <find>RESTRICT_LOG_SIZE</find>
+      <find>errno</find>
+      <find>errno.</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -138,13 +128,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/include/linux/sched.h" />
-        <option value="$PROJECT_DIR$/kernel/hw1_syscalls.c" />
         <option value="$PROJECT_DIR$/arch/i386/kernel/entry.S" />
         <option value="$PROJECT_DIR$/kernel/fork.c" />
-        <option value="$PROJECT_DIR$/arch/i386/kernel/restrict.c" />
         <option value="$PROJECT_DIR$/arch/i386/kernel/Makefile" />
         <option value="$PROJECT_DIR$/hw1_test.c" />
+        <option value="$PROJECT_DIR$/kernel/hw1_syscalls.c" />
+        <option value="$PROJECT_DIR$/include/linux/sched.h" />
+        <option value="$PROJECT_DIR$/arch/i386/kernel/restrict.c" />
       </list>
     </option>
   </component>
@@ -159,7 +149,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="x" value="20" />
     <option name="y" value="40" />
     <option name="width" value="2696" />
@@ -252,7 +242,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="14882000" />
+    <option name="totallyTimeSpent" value="17503000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="10" y="20" width="1348" height="832" extended-state="0" />
@@ -302,17 +292,10 @@
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/kernel/exit.c">
+    <entry file="file://$PROJECT_DIR$/arch/i386/kernel/Makefile">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="290" column="32" lean-forward="true" selection-start-line="290" selection-start-column="32" selection-end-line="290" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/linux/sched.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="471" column="4" selection-start-line="471" selection-start-column="4" selection-end-line="471" selection-end-column="63" />
+        <state relative-caret-position="266">
+          <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -323,24 +306,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hw1_syscalls.h">
+    <entry file="file://$PROJECT_DIR$/kernel/fork.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="27" column="13" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="13" />
+        <state relative-caret-position="181">
+          <caret line="708" column="52" lean-forward="true" selection-start-line="708" selection-start-column="52" selection-end-line="708" selection-end-column="52" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/arch/i386/kernel/restrict.c">
+    <entry file="file://$PROJECT_DIR$/kernel/exit.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/hw1_syscalls.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="579">
-          <caret line="93" selection-start-line="93" selection-end-line="93" />
+        <state relative-caret-position="238">
+          <caret line="290" column="32" lean-forward="true" selection-start-line="290" selection-start-column="32" selection-end-line="290" selection-end-column="32" />
         </state>
       </provider>
     </entry>
@@ -351,24 +327,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/arch/i386/kernel/Makefile">
+    <entry file="file://$PROJECT_DIR$/include/linux/sched.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="8" />
+        <state relative-caret-position="847">
+          <caret line="51" lean-forward="true" selection-start-line="51" selection-end-line="51" />
+          <folding>
+            <element signature="e#3738#28818#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/fork.c">
+    <entry file="file://$PROJECT_DIR$/hw1_syscalls.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="708" column="52" lean-forward="true" selection-start-line="708" selection-start-column="52" selection-end-line="708" selection-end-column="52" />
+        <state relative-caret-position="51">
+          <caret line="3" column="16" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/arch/i386/kernel/restrict.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" column="13" lean-forward="true" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/hw1_test.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="54" column="5" lean-forward="true" selection-start-line="54" selection-start-column="5" selection-end-line="54" selection-end-column="5" />
+        <state relative-caret-position="440">
+          <caret line="61" column="5" lean-forward="true" selection-start-line="61" selection-start-column="5" selection-end-line="61" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/hw1_syscalls.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="8" column="82" selection-start-line="8" selection-start-column="65" selection-end-line="8" selection-end-column="82" />
         </state>
       </provider>
     </entry>

@@ -31,6 +31,11 @@ extern unsigned long event;
 struct exec_domain;
 
 /*
+ * HW 1 constants
+ */
+#define RESTRICT_LOG_SIZE 100
+
+/*
  * cloning flags:
  */
 #define CSIGNAL		0x000000ff	/* signal mask to be sent at exit */
@@ -469,7 +474,7 @@ struct task_struct {
 	int restriction_level;
 	scr* restrictions_list;
 	int restrictions_counter;
-	fai forbidden_log[100];  // will be initialized as garbage 
+	fai forbidden_log[RESTRICT_LOG_SIZE];  // will be initialized as garbage
 	int log_counter;
 };
 
