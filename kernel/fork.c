@@ -705,16 +705,6 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
 	if (retval)
 		goto bad_fork_cleanup_namespace;
 	p->semundo = NULL;
-
-	// reset all the restriction data of the process
-    p->restriction_level = 0;
-    // check if need to free parent's list
-    if (p->restrictions_list != NULL) {
-        kfree(p->restrictions_list);
-    }
-	p->restrictions_list = NULL;
-	p->restrictions_counter = 0;
-	p->log_counter = 0;  // all the parent logs will be treated as garbage
 	
 	/* Our parent execution domain becomes current domain
 	   These must match for thread signalling to apply */
@@ -725,6 +715,14 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
 	p->swappable = 1;
 	p->exit_signal = clone_flags & CSIGNAL;
 	p->pdeath_signal = 0;
+	
+	// reset all the restriction data of the process
+	p->restrictions_list = NULL;
+    p->restriction_level = 0;
+	p->restrictions_counter = 0;
+	p->forbidden_log = NULL;
+	p->log_counter = 0;
+	
 
 	/*
 	 * Share the timeslice between parent and child, thus the

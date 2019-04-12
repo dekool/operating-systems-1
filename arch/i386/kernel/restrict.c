@@ -17,8 +17,7 @@ int restrict(int syscall_number) {
 			if(current->log_counter > (2*RESTRICT_LOG_SIZE)){
 				current->log_counter -= RESTRICT_LOG_SIZE;
 			}
-			printk("restrict info: \n syscall_num = %d\n restriction threshold = %d\n proc level = %d\n time = %d\n", current->forbidden_log[log_index].syscall_num,
-				current->forbidden_log[log_index].syscall_restriction_threshold, current->forbidden_log[log_index].proc_restriction_level, current->forbidden_log[log_index].time);
+			
 			return -ENOSYS;
 		}
 	}

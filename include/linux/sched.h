@@ -474,7 +474,7 @@ struct task_struct {
 	int restriction_level;
 	scr* restrictions_list;
 	int restrictions_counter;
-	fai forbidden_log[RESTRICT_LOG_SIZE];  // will be initialized as garbage
+	fai* forbidden_log;  // will be initialized as garbage
 	int log_counter;
 };
 
@@ -584,6 +584,7 @@ extern struct exec_domain	default_exec_domain;
 	restriction_level:	0,						\
 	restrictions_list:	NULL,						\
 	restrictions_counter:	0,						\
+	forbidden_log:	NULL,						\
 	log_counter:	0,						\
 }
 

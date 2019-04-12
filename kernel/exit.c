@@ -33,6 +33,15 @@ static void release_task(struct task_struct * p)
 #ifdef CONFIG_SMP
 	wait_task_inactive(p);
 #endif
+
+	//free restrictions_list and log 
+	if(p->restrictions_list != NULL){
+		kfree(p->restrictions_list);
+	}
+	if(p->forbidden_log != NULL){
+		kfree(p->forbidden_log);
+	}
+	
 	atomic_dec(&p->user->processes);
 	free_uid(p->user);
 	unhash_process(p);
@@ -488,11 +497,7 @@ static void exit_notify(void)
 NORET_TYPE void do_exit(long code)
 {
 	struct task_struct *tsk = current;
-	
-	/* free the syscall_restriction_list */
-	if (tsk->restrictions_list != NULL){
-		kfree(tsk->restrictions_list);
-	}
+
 	if (in_interrupt())
 		panic("Aiee, killing interrupt handler!");
 	if (!tsk->pid)
