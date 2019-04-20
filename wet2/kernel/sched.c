@@ -1904,6 +1904,18 @@ int ll_copy_from_user(void *to, const void *from_user, unsigned long len)
 	return 0;
 }
 
+int sys_is_short(pid_t pid){
+	return 0;
+}
+
+int sys_short_remaining_time(pid_t pid){
+	return 0;
+}
+
+int sys_short_place_in_queue(pid_t pid){
+	return 0;
+}
+
 #ifdef CONFIG_LOLAT_SYSCTL
 struct low_latency_enable_struct __enable_lowlatency = { 0, };
 #endif
