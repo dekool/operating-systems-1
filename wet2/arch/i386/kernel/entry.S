@@ -650,6 +650,10 @@ ENTRY(sys_call_table)
 	.long SYMBOL_NAME(sys_sched_setaffinity)
 	.long SYMBOL_NAME(sys_sched_getaffinity)
 
+	.long SYMBOL_NAME(sys_is_short) 	/* 243 is short */
+	.long SYMBOL_NAME(sys_short_remaining_time) /* 244 short remaining time */
+	.long SYMBOL_NAME(sys_short_place_in_queue) /* 245 short place in queue */
+	
 	.rept NR_syscalls-(.-sys_call_table)/4
 		.long SYMBOL_NAME(sys_ni_syscall)
 	.endr
