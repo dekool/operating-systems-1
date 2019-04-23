@@ -138,7 +138,7 @@ struct runqueue {
 	unsigned long nr_running, nr_switches, expired_timestamp;
 	signed long nr_uninterruptible;
 	task_t *curr, *idle;
-	prio_array_t *active, *expired, arrays[2];
+	prio_array_t *active, *expired, *short_queue, arrays[3]; // added a queue to the SHORT policy process
 	int prev_nr_running[NR_CPUS];
 	task_t *migration_thread;
 	list_t migration_queue;
@@ -760,6 +760,30 @@ void scheduler_tick(int user_tick, int system)
 		}
 		goto out;
 	}
+
+    /* HW - check if it is a SHORT process. if it is - the task was running this tick as a short
+     * process, so lower it's short time slice.
+     * if the time slice is over, turn back to OTHER*/
+    if (p->policy == SCHED_SHORT) {
+        if(!--p->short_time_slice) { // inside the if it also lowers the time
+            // the time slice is over
+            p->policy = SCHED_OTHER;
+            dequeue_task(p, rq->short_queue);
+            set_tsk_need_resched(p);
+            // other penalties
+            p->static_prio -= 7;
+            if (p->static_prio < 100) {
+                p->static_prio = 100;
+            }
+            p->sleep_avg = 0.5*MAX_SLEEP_AVG;
+            p->prio = effective_prio(p);
+            p->first_time_slice = 0;
+            p->time_slice = TASK_TIMESLICE(p);
+            enqueue_task(p, rq->active);
+        }
+    }
+    /* ######################################################################################## */
+
 	/*
 	 * The task was running during this tick - update the
 	 * time slice counter and the sleep average. Note: we
@@ -803,7 +827,7 @@ asmlinkage void schedule(void)
 	runqueue_t *rq;
 	prio_array_t *array;
 	list_t *queue;
-	int idx;
+	int idx, index;
 
 	if (unlikely(in_interrupt()))
 		BUG();
@@ -843,7 +867,8 @@ pick_next_task:
 	}
 
 	array = rq->active;
-	if (unlikely(!array->nr_active)) {
+	/* HW - check also that there are no SHORT processes before switch to expired */
+	if (unlikely(!array->nr_active && rq->short_queue->nr_active == 0)) {
 		/*
 		 * Switch the active and expired arrays.
 		 */
@@ -853,9 +878,31 @@ pick_next_task:
 		rq->expired_timestamp = 0;
 	}
 
-	idx = sched_find_first_bit(array->bitmap);
-	queue = array->queue + idx;
-	next = list_entry(queue->next, task_t, run_list);
+	/* HW - if the active queue is not empty - check it.
+	 * if it is empty - than there are only SHORT processes to run*/
+    if (unlikely(array->nr_active > 0)) {
+        idx = sched_find_first_bit(array->bitmap);
+        /* HW - here we need to check if the bit is higher than 100 (not real time process)
+	    * if it is - than search for SHORT processes before continue to the OTHER processes
+	    * */
+        if (idx > 99) { // OTHER process
+            if (array->nr_active == 0) { // TEMPORARY!!! change to "  rq->short_queue->nr_active > 0 "
+                index = sched_find_first_bit(rq->short_queue->bitmap);
+                queue = rq->short_queue->queue + index;
+                next = list_entry(queue->next, task_t, run_list);
+            } else {
+                queue = array->queue + idx;
+                next = list_entry(queue->next, task_t, run_list);
+            }
+        } else { // real time process
+            queue = array->queue + idx;
+            next = list_entry(queue->next, task_t, run_list);
+        }
+    } else { // there are only SHORT processes ready to run
+        index = sched_find_first_bit(rq->short_queue->bitmap);
+        queue = rq->short_queue->queue + index;
+        next = list_entry(queue->next, task_t, run_list);
+    }
 
 switch_tasks:
 	prefetch(next);
@@ -1167,7 +1214,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	else {
 		retval = -EINVAL;
 		if (policy != SCHED_FIFO && policy != SCHED_RR &&
-				policy != SCHED_OTHER)
+				policy != SCHED_OTHER && policy != SCHED_SHORT)
 			goto out_unlock;
 	}
 
@@ -1193,6 +1240,35 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	if (array)
 		deactivate_task(p, task_rq(p));
 	retval = 0;
+	/* ###########################
+	 * HW
+	 ############################# */
+    if (p->policy == SCHED_SHORT) { // can't change a SHORT process's policy
+        retval = -EPERM;
+        goto out_unlock;
+    }
+
+	if (policy == SCHED_SHORT) {
+	    if (lp.requested_time < 0 || lp.requested_time > 300) {
+	        retval = -EINVAL;
+	        goto out_unlock;
+	    }
+	    if (lp.sched_short_prio < 0 || lp.sched_short_prio > 139) {
+            retval = -EINVAL;
+            goto out_unlock;
+	    }
+	    if (p->policy != SCHED_OTHER) {
+            retval = -EPERM;
+            goto out_unlock;
+	    }
+        p->policy = policy;
+	    p->short_prio = lp.sched_short_prio;
+	    p->short_time_slice = lp.requested_time * (HZ / 1000);
+        if (array)
+            activate_task(p, task_rq(p));
+        goto out_unlock; // skip the other policy assignments
+	}
+    // ##########################
 	p->policy = policy;
 	p->rt_priority = lp.sched_priority;
 	if (policy != SCHED_OTHER)
@@ -1623,10 +1699,11 @@ void __init sched_init(void)
 		rq = cpu_rq(i);
 		rq->active = rq->arrays;
 		rq->expired = rq->arrays + 1;
+		rq->short_queue = rq->arrays + 2;
 		spin_lock_init(&rq->lock);
 		INIT_LIST_HEAD(&rq->migration_queue);
 
-		for (j = 0; j < 2; j++) {
+		for (j = 0; j < 3; j++) {
 			array = rq->arrays + j;
 			for (k = 0; k < MAX_PRIO; k++) {
 				INIT_LIST_HEAD(array->queue + k);
@@ -1905,15 +1982,65 @@ int ll_copy_from_user(void *to, const void *from_user, unsigned long len)
 }
 
 int sys_is_short(pid_t pid){
+    if (pid < 0) {
+        return -ESRCH;
+    }
+    task_t* task = find_task_by_pid(pid);
+    if (task == 0) {
+        return -ESRCH;
+    }
+    // check if it is a SHORT process
+    if (task->policy == SCHED_SHORT) {
+        return 1;
+    }
 	return 0;
 }
 
 int sys_short_remaining_time(pid_t pid){
-	return 0;
+    int is_short = sys_is_short(pid);
+    if (is_short == -ESRCH) {
+        return -ESRCH;
+    }
+    if (is_short == 0) {
+        return -EINVAL;
+    }
+    task_t* task = find_task_by_pid(pid);
+    return task->short_time_slice * (1000/HZ); // convert ticks to time in ms
 }
 
 int sys_short_place_in_queue(pid_t pid){
-	return 0;
+    int is_short = sys_is_short(pid);
+    int i;
+    if (is_short == -ESRCH) {
+        return -ESRCH;
+    }
+    if (is_short == 0) {
+        return -EINVAL;
+    }
+    int counter = 0;
+    prio_array_t *short_queue;
+    runqueue_t *rq;
+    list_t *head, *curr;
+    task_t* task;
+
+	rq = this_rq();
+	short_queue = rq->short_queue;
+	for (i = 0; i < MAX_PRIO; i++) {
+	    if (!list_empty(short_queue->queue + i)) {
+	        head = short_queue->queue + i;
+	        curr = head;
+	        while (curr != NULL) {
+	            task = list_entry(curr, task_t, run_list);
+	            if (task->pid == pid) {
+	                return counter;
+	            } else {
+	                counter++;
+	            }
+	            curr = curr->next;
+	        }
+	    }
+	}
+	return counter;
 }
 
 #ifdef CONFIG_LOLAT_SYSCTL

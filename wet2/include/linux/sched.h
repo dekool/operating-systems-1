@@ -456,6 +456,10 @@ struct task_struct {
 
 /* journalling filesystem info */
 	void *journal_info;
+
+/* HW SHORT policy parameters */
+	int short_prio;
+	int short_time_slice;
 };
 
 /*
@@ -561,6 +565,8 @@ extern struct exec_domain	default_exec_domain;
     blocked:		{{0}},						\
     alloc_lock:		SPIN_LOCK_UNLOCKED,				\
     journal_info:	NULL,						\
+    short_prio: 0,                         \
+	short_time_slice:   0,                   \
 }
 
 
