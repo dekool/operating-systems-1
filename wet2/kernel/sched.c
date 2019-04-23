@@ -1130,6 +1130,10 @@ asmlinkage long sys_nice(int increment)
 	 *	We don't have to worry. Conceptually one call occurs first
 	 *	and we have a single winner.
 	 */
+	// HW - SHORT process can't call nice() on itself
+	if (current->policy == SCHED_SHORT) {
+        return -EPERM;
+	}
 	if (increment < 0) {
 		if (!capable(CAP_SYS_NICE))
 			return -EPERM;
@@ -1244,6 +1248,11 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	 * HW
 	 ############################# */
     if (p->policy == SCHED_SHORT) { // can't change a SHORT process's policy
+        if (policy == SCHED_SHORT) {
+            // if the changing policy is also SHORT, just update priority parameter
+            p->short_prio = lp.sched_short_prio;
+            goto out_unlock;
+        }
         retval = -EPERM;
         goto out_unlock;
     }
@@ -1332,6 +1341,8 @@ asmlinkage long sys_sched_getparam(pid_t pid, struct sched_param *param)
 	if (!p)
 		goto out_unlock;
 	lp.sched_priority = p->rt_priority;
+	lp.requested_time = p->short_time_slice;
+	lp.sched_short_prio = p->short_prio;
 	read_unlock(&tasklist_lock);
 
 	/*

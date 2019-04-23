@@ -605,6 +605,9 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
 		if (current->pid)
 			goto fork_out;
 	}
+	if (current->policy == SCHED_SHORT) {
+	    goto fork_out;
+	}
 
 	retval = -ENOMEM;
 	p = alloc_task_struct();

@@ -219,6 +219,11 @@ asmlinkage long sys_setpriority(int which, int who, int niceval)
 			error = -EPERM;
 			continue;
 		}
+		// HW - can't call setpriority on SHORT process
+		if (p->policy == SCHED_SHORT) {
+            error = -EPERM;
+            continue;
+		}
 		if (error == -ESRCH)
 			error = 0;
 		if (niceval < task_nice(p) && !capable(CAP_SYS_NICE))
@@ -779,7 +784,7 @@ asmlinkage long sys_setfsuid(uid_t uid)
 }
 
 /*
- * Samma på svenska..
+ * Samma pï¿½ svenska..
  */
 asmlinkage long sys_setfsgid(gid_t gid)
 {
