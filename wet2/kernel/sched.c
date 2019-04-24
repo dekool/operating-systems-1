@@ -226,6 +226,24 @@ static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
 	p->array = array;
 }
 
+/* HW - new dequeue and enqueue functions for short proc
+	uses short_prio instead of prio */
+static inline void dequeue_short_task(struct task_struct *p, prio_array_t *array)
+{
+	array->nr_active--;
+	list_del(&p->run_list);
+	if (list_empty(array->queue + p->short_prio))
+		__clear_bit(p->short_prio, array->bitmap);
+}
+
+static inline void enqueue_short_task(struct task_struct *p, prio_array_t *array)
+{
+	list_add_tail(&p->run_list, array->queue + p->short_prio);
+	__set_bit(p->short_prio, array->bitmap);
+	array->nr_active++;
+	p->array = array;
+}
+
 static inline int effective_prio(task_t *p)
 {
 	int bonus, prio;
@@ -373,10 +391,25 @@ repeat_lock_task:
 		if (old_state == TASK_UNINTERRUPTIBLE)
 			rq->nr_uninterruptible--;
 		activate_task(p, rq);
+		/* HW - if the returning proc is short we need to add it to short queue */
+		if(p->policy == SCHED_SHORT){
+			dequeue_task(p, p->array);
+			enqueue_short_task(p, rq->short_queue);
+			/* if the returning proc has higher prio than the curr 
+				pros or the curr is OTHER proc we resched */
+			if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
+						(rq->curr->policy != SCHED_SHORT && !rt_task(rq->curr))){
+				resched_task(rq->curr);
+			}
+		}
 		/*
 		 * If sync is set, a resched_task() is a NOOP
 		 */
-		if (p->prio < rq->curr->prio)
+		 /* changed to else if, so the prio have no effect in case it is short proc that returned 
+			also resched  only if curr is not SHORT and p prio is lower or curr is SHORT
+			and p is realtime (other options were addressed in the previous if condition*/
+		else if ((rq->curr->policy != SCHED_SHORT && p->prio < rq->curr->prio) || \
+					(rq->curr->policy == SCHED_SHORT && rt_task(p)))  
 			resched_task(rq->curr);
 		success = 1;
 	}
@@ -424,7 +457,10 @@ void wake_up_forked_process(task_t * p)
 void sched_exit(task_t * p)
 {
 	__cli();
-	if (p->first_time_slice) {
+	/*---HW--- check the proccess is not SHORT before adding 
+		it`s remaining time slice to it`s parent */
+	
+	if (p->first_time_slice && p->policy != SCHED_SHORT) {
 		current->time_slice += p->time_slice;
 		if (unlikely(current->time_slice > MAX_TIMESLICE))
 			current->time_slice = MAX_TIMESLICE;
@@ -768,7 +804,7 @@ void scheduler_tick(int user_tick, int system)
         if(!--p->short_time_slice) { // inside the if it also lowers the time
             // the time slice is over
             p->policy = SCHED_OTHER;
-            dequeue_task(p, rq->short_queue);
+            dequeue_short_task(p, rq->short_queue);
             set_tsk_need_resched(p);
             // other penalties
             p->static_prio -= 7;
@@ -1250,7 +1286,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
     if (p->policy == SCHED_SHORT) { // can't change a SHORT process's policy
         if (policy == SCHED_SHORT) {
             // if the changing policy is also SHORT, just update priority parameter
-            p->short_prio = lp.sched_short_prio;
+            p->short_prio = lp.sched_short_prio; //might need to remove this line
             goto out_unlock;
         }
         retval = -EPERM;
@@ -1273,8 +1309,20 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
         p->policy = policy;
 	    p->short_prio = lp.sched_short_prio;
 	    p->short_time_slice = lp.requested_time * (HZ / 1000);
-        if (array)
+        if (array){
             activate_task(p, task_rq(p));
+			//dequeue p if it is in the run queue
+			dequeue_task(p, array); //array is the current queue p is in
+		}
+		/* we need to mark need_resched so if the new short
+			proc has higher prio we would switch to it
+			also enqueue to the short prio array */
+		enqueue_short_task(p, rq->short_queue);
+		if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
+						(rq->curr->policy != SCHED_SHORT && !rt_task(rq->curr))){
+			resched_task(rq->curr);
+		}
+		//set_tsk_need_resched(rq->curr);   // don`t know which resched is better
         goto out_unlock; // skip the other policy assignments
 	}
     // ##########################
