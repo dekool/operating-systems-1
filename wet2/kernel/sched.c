@@ -238,6 +238,11 @@ static inline int effective_prio(task_t *p)
 {
 	int bonus, prio;
 
+    // HW - for SHORT process, return the short_prio instead of calculating the effective prio
+    if (p->policy == SCHED_SHORT) {
+        return p->short_prio;
+    }
+
 	/*
 	 * Here we scale the actual sleep average [0 .... MAX_SLEEP_AVG]
 	 * into the -5 ... 0 ... +5 bonus/penalty range.
@@ -1112,6 +1117,11 @@ void set_user_nice(task_t *p, long nice)
 
 	if (TASK_NICE(p) == nice || nice < -20 || nice > 19)
 		return;
+
+    if (p->policy == SCHED_SHORT) { // HW - can't change priority of SHORT process
+        return;
+    }
+
 	/*
 	 * We have to be careful, if called from sys_setpriority(),
 	 * the task might be in the middle of scheduling on another CPU.
@@ -1168,6 +1178,10 @@ asmlinkage long sys_nice(int increment)
 	}
 	if (increment > 40)
 		increment = 40;
+
+    if (p->policy == SCHED_SHORT) { // HW - if it is a SHORT process, return the short prio instead
+        return p->short_prio;
+    }
 
 	nice = PRIO_TO_NICE(current->static_prio) + increment;
 	if (nice < -20)
@@ -1504,6 +1518,12 @@ asmlinkage long sys_sched_yield(void)
 		list_del(&current->run_list);
 		list_add_tail(&current->run_list, array->queue + current->prio);
 		goto out_unlock;
+	}
+
+	if (current->policy == SCHED_SHORT) { // HW - on yield SHORT process acts like real time
+        list_del(&current->run_list);
+        list_add_tail(&current->run_list, array->queue + current->short_prio); // use short_prio instead of prio
+        goto out_unlock;
 	}
 
 	list_del(&current->run_list);
