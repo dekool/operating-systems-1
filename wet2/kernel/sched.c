@@ -1179,8 +1179,8 @@ asmlinkage long sys_nice(int increment)
 	if (increment > 40)
 		increment = 40;
 
-    if (p->policy == SCHED_SHORT) { // HW - if it is a SHORT process, return the short prio instead
-        return p->short_prio;
+    if (current->policy == SCHED_SHORT) { // HW - if it is a SHORT process, return the short prio instead
+        return current->short_prio;
     }
 
 	nice = PRIO_TO_NICE(current->static_prio) + increment;
