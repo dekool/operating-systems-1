@@ -210,36 +210,26 @@ static inline void rq_unlock(runqueue_t *rq)
 /*
  * Adding/removing a task to/from a priority array:
  */
+ /* HW - new dequeue and enqueue functions for short proc
+	uses short_prio instead of prio */
 static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
 {
+	int prio = p->prio;
+	if(array == this_rq()->short_queue) //not sure this is the best way to check if the array is the short queue
+		prio = p->short_prio;
 	array->nr_active--;
 	list_del(&p->run_list);
-	if (list_empty(array->queue + p->prio))
-		__clear_bit(p->prio, array->bitmap);
+	if (list_empty(array->queue + prio))
+		__clear_bit(prio, array->bitmap);
 }
 
 static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
 {
-	list_add_tail(&p->run_list, array->queue + p->prio);
-	__set_bit(p->prio, array->bitmap);
-	array->nr_active++;
-	p->array = array;
-}
-
-/* HW - new dequeue and enqueue functions for short proc
-	uses short_prio instead of prio */
-static inline void dequeue_short_task(struct task_struct *p, prio_array_t *array)
-{
-	array->nr_active--;
-	list_del(&p->run_list);
-	if (list_empty(array->queue + p->short_prio))
-		__clear_bit(p->short_prio, array->bitmap);
-}
-
-static inline void enqueue_short_task(struct task_struct *p, prio_array_t *array)
-{
-	list_add_tail(&p->run_list, array->queue + p->short_prio);
-	__set_bit(p->short_prio, array->bitmap);
+	int prio = p->prio;
+	if(array == this_rq()->short_queue)
+		prio = p->short_prio;
+	list_add_tail(&p->run_list, array->queue + prio);
+	__set_bit(prio, array->bitmap);
 	array->nr_active++;
 	p->array = array;
 }
@@ -394,7 +384,7 @@ repeat_lock_task:
 		/* HW - if the returning proc is short we need to add it to short queue */
 		if(p->policy == SCHED_SHORT){
 			dequeue_task(p, p->array);
-			enqueue_short_task(p, rq->short_queue);
+			enqueue_task(p, rq->short_queue);
 			/* if the returning proc has higher prio than the curr 
 				pros or the curr is OTHER proc we resched */
 			if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
@@ -804,7 +794,7 @@ void scheduler_tick(int user_tick, int system)
         if(!--p->short_time_slice) { // inside the if it also lowers the time
             // the time slice is over
             p->policy = SCHED_OTHER;
-            dequeue_short_task(p, rq->short_queue);
+            dequeue_task(p, rq->short_queue);
             set_tsk_need_resched(p);
             // other penalties
             p->static_prio -= 7;
@@ -1306,8 +1296,8 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
             retval = -EPERM;
             goto out_unlock;
 	    }
-        p->policy = policy;
-	    p->short_prio = lp.sched_short_prio;
+		p->policy = policy;
+        p->short_prio = lp.sched_short_prio;
 	    p->short_time_slice = lp.requested_time * (HZ / 1000);
         if (array){
             activate_task(p, task_rq(p));
@@ -1317,7 +1307,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 		/* we need to mark need_resched so if the new short
 			proc has higher prio we would switch to it
 			also enqueue to the short prio array */
-		enqueue_short_task(p, rq->short_queue);
+		enqueue_task(p, rq->short_queue);
 		if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
 						(rq->curr->policy != SCHED_SHORT && !rt_task(rq->curr))){
 			resched_task(rq->curr);
