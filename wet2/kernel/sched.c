@@ -1280,6 +1280,30 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	    !capable(CAP_SYS_NICE))
 		goto out_unlock;
 
+    /* ###########################
+     * HW
+     ############################# */
+    if (p->policy == SCHED_SHORT) { // can't change a SHORT process's policy
+        retval = -EPERM;
+        goto out_unlock;
+    }
+
+    if (policy == SCHED_SHORT) {
+        if (lp.requested_time < 1 || lp.requested_time > 3000) {
+            retval = -EINVAL;
+            goto out_unlock;
+        }
+        if (lp.sched_short_prio < 0 || lp.sched_short_prio > 139) {
+            retval = -EINVAL;
+            goto out_unlock;
+        }
+        if (p->policy != SCHED_OTHER) {
+            retval = -EPERM;
+            goto out_unlock;
+        }
+    }
+    // ##############################
+
 	array = p->array;
 	if (array)
 		deactivate_task(p, task_rq(p));
@@ -1287,29 +1311,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	/* ###########################
 	 * HW
 	 ############################# */
-    if (p->policy == SCHED_SHORT) { // can't change a SHORT process's policy
-        if (policy == SCHED_SHORT) {
-            // if the changing policy is also SHORT, just update priority parameter
-            p->short_prio = lp.sched_short_prio; //might need to remove this line
-            goto out_unlock;
-        }
-        retval = -EPERM;
-        goto out_unlock;
-    }
-
 	if (policy == SCHED_SHORT) {
-	    if (lp.requested_time < 1 || lp.requested_time > 3000) {
-	        retval = -EINVAL;
-	        goto out_unlock;
-	    }
-	    if (lp.sched_short_prio < 0 || lp.sched_short_prio > 139) {
-            retval = -EINVAL;
-            goto out_unlock;
-	    }
-	    if (p->policy != SCHED_OTHER) {
-            retval = -EPERM;
-            goto out_unlock;
-	    }
 		p->policy = policy;
         p->short_prio = lp.sched_short_prio;
 	    p->short_time_slice = lp.requested_time * (HZ / 1000);
