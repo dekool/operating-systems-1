@@ -1,0 +1,21 @@
+#!/bin/bash
+
+cd /mnt/hgfs/shared_folder/wet2/
+cp include/linux/sched.h /usr/src/linux-2.4.18-14custom/include/linux/
+
+cp arch/i386/kernel/entry.S  /usr/src/linux-2.4.18-14custom/arch/i386/kernel/
+
+cp kernel/sched.c kernel/fork.c  kernel/sys.c kernel/exit.c  /usr/src/linux-2.4.18-14custom/kernel/
+
+cp hw2_syscalls.h hw2_test.c ~
+
+
+cd /usr/src/linux-2.4.18-14custom/
+make bzImage
+
+if (( $# == 1 )); then 
+	cd arch/i386/boot/
+	cp bzImage /boot/vmlinuz-2.4.18-14custom
+	reboot
+fi
+

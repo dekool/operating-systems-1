@@ -150,7 +150,7 @@ static struct runqueue runqueues[NR_CPUS] __cacheline_aligned;
 #define this_rq()		cpu_rq(smp_processor_id())
 #define task_rq(p)		cpu_rq((p)->cpu)
 #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
-#define rt_task(p)		((p)->prio < MAX_RT_PRIO)
+#define rt_task(p)		((p)->prio < MAX_RT_PRIO && (p)->policy != SCHED_SHORT)
 
 /*
  * Default context-switch locking:
@@ -210,26 +210,18 @@ static inline void rq_unlock(runqueue_t *rq)
 /*
  * Adding/removing a task to/from a priority array:
  */
- /* HW - new dequeue and enqueue functions for short proc
-	uses short_prio instead of prio */
 static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
 {
-	int prio = p->prio;
-	if(array == this_rq()->short_queue) //not sure this is the best way to check if the array is the short queue
-		prio = p->short_prio;
 	array->nr_active--;
 	list_del(&p->run_list);
-	if (list_empty(array->queue + prio))
-		__clear_bit(prio, array->bitmap);
+	if (list_empty(array->queue + p->prio))
+		__clear_bit(p->prio, array->bitmap);
 }
 
 static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
 {
-	int prio = p->prio;
-	if(array == this_rq()->short_queue)
-		prio = p->short_prio;
-	list_add_tail(&p->run_list, array->queue + prio);
-	__set_bit(prio, array->bitmap);
+	list_add_tail(&p->run_list, array->queue + p->prio);
+	__set_bit(p->prio, array->bitmap);
 	array->nr_active++;
 	p->array = array;
 }
@@ -269,7 +261,10 @@ static inline void activate_task(task_t *p, runqueue_t *rq)
 {
 	unsigned long sleep_time = jiffies - p->sleep_timestamp;
 	prio_array_t *array = rq->active;
-
+	if(p->policy == SCHED_SHORT){ //short proc will be added to short queue instead of active
+		array = rq->short_queue;
+	}
+	
 	if (!rt_task(p) && sleep_time) {
 		/*
 		 * This code gives a bonus to interactive tasks. We update
@@ -385,13 +380,10 @@ repeat_lock_task:
 		}
 		if (old_state == TASK_UNINTERRUPTIBLE)
 			rq->nr_uninterruptible--;
-		activate_task(p, rq);
-		/* HW - if the returning proc is short we need to add it to short queue */
-		if(p->policy == SCHED_SHORT){
-			dequeue_task(p, p->array);
-			enqueue_task(p, rq->short_queue);
-			/* if the returning proc has higher prio than the curr 
+		activate_task(p, rq); // will add the proc to the correct queue
+		/* HW - if the returning proc has higher prio than the curr 
 				pros or the curr is OTHER proc we resched */
+		if(p->policy == SCHED_SHORT){
 			if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
 						(rq->curr->policy != SCHED_SHORT && !rt_task(rq->curr))){
 				resched_task(rq->curr);
@@ -402,7 +394,7 @@ repeat_lock_task:
 		 */
 		 /* changed to else if, so the prio have no effect in case it is short proc that returned 
 			also resched  only if curr is not SHORT and p prio is lower or curr is SHORT
-			and p is realtime (other options were addressed in the previous if condition*/
+			and p is realtime (other options were addressed in the previous if condition)*/
 		else if ((rq->curr->policy != SCHED_SHORT && p->prio < rq->curr->prio) || \
 					(rq->curr->policy == SCHED_SHORT && rt_task(p)))  
 			resched_task(rq->curr);
@@ -770,7 +762,7 @@ void scheduler_tick(int user_tick, int system)
 	kstat.per_cpu_system[cpu] += system;
 
 	/* Task might have expired already, but not scheduled off yet */
-	if (p->array != rq->active) {
+	if (p->array != rq->active && p->array != rq->short_queue) {
 		set_tsk_need_resched(p);
 		return;
 	}
@@ -911,7 +903,7 @@ pick_next_task:
 
 	/* HW - if the active queue is not empty - check it.
 	 * if it is empty - than there are only SHORT processes to run*/
-    if (unlikely(array->nr_active > 0)) {
+    if (likely(array->nr_active > 0)) {
         idx = sched_find_first_bit(array->bitmap);
         /* HW - here we need to check if the bit is higher than 100 (not real time process)
 	    * if it is - than search for SHORT processes before continue to the OTHER processes
@@ -1317,15 +1309,12 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 		p->policy = policy;
         p->short_prio = lp.sched_short_prio;
 	    p->short_time_slice = lp.requested_time * HZ / 1000;
+		p->prio = lp.sched_short_prio;
         if (array){
-            activate_task(p, task_rq(p));
-			//dequeue p if it is in the run queue
-			dequeue_task(p, array); //array is the current queue p is in
+            activate_task(p, task_rq(p)); //activate will enqueue p to short queue
 		}
 		/* we need to mark need_resched so if the new short
-			proc has higher prio we would switch to it
-			also enqueue to the short prio array */
-		enqueue_task(p, rq->short_queue);
+			proc has higher prio we would switch to it*/
 		if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
 						(rq->curr->policy != SCHED_SHORT && !rt_task(rq->curr))){
 			resched_task(rq->curr);
@@ -1518,16 +1507,10 @@ asmlinkage long sys_sched_yield(void)
 	prio_array_t *array = current->array;
 	int i;
 
-	if (unlikely(rt_task(current))) {
+	if (unlikely(rt_task(current)) || current->policy == SCHED_SHORT) { // HW - on yield SHORT process acts like real time
 		list_del(&current->run_list);
 		list_add_tail(&current->run_list, array->queue + current->prio);
 		goto out_unlock;
-	}
-
-	if (current->policy == SCHED_SHORT) { // HW - on yield SHORT process acts like real time
-        list_del(&current->run_list);
-        list_add_tail(&current->run_list, array->queue + current->short_prio); // use short_prio instead of prio
-        goto out_unlock;
 	}
 
 	list_del(&current->run_list);
@@ -2098,23 +2081,31 @@ int sys_short_place_in_queue(pid_t pid){
 
 	rq = this_rq();
 	short_queue = rq->short_queue;
+	printk("$$$$$$ looking for pid = %d\n",pid);
 	for (i = 0; i < MAX_PRIO; i++) {
-	    if (!list_empty(short_queue->queue + i)) {
+		if (!list_empty(short_queue->queue + i)) {
+			printk("$$$$$$ short_prio -  %d &&&&&&\n",i);
+	    
 	        head = short_queue->queue + i;
 	        curr = head;
 	        curr = curr->next;
 	        while (curr != NULL && curr != head) {
 	            task = list_entry(curr, task_t, run_list);
+				printk("pid = %d, prio = %d --> ", task->pid, task->short_prio);
 	            if (task->pid == pid) {
+					printk("\n");
 	                return counter;
 	            } else {
 	                counter++;
 	            }
 	            curr = curr->next;
 	        }
+			printk("\n");
 	    }
 	}
 	return counter;
+	/* according to piazza if the proc is not in run queue (in wait queue) we should
+		count all the proccess until the proc prio including all the proccess in this prio */
 }
 
 #ifdef CONFIG_LOLAT_SYSCTL

@@ -266,7 +266,6 @@ int main() {
         test_short_place_in_queue();
         return 0;
     }
-
     pid = fork();
     if (pid == 0) {
         short_process_runs_before_other();
