@@ -102,6 +102,8 @@ static void short_fork_and_nice_penalties() {
     assertTest(sched_setscheduler(pid, SCHED_SHORT, &param) == 0); // convert to SHORT
     assertTest(fork() == -1);
     assertTest(errno == EPERM);
+    assertTest(clone() == -1);
+    assertTest(errno == EPERM);
     assertTest(nice(2) == -1);
     assertTest(errno == EPERM);
     assertTest(setpriority(0, pid, 2) == -1);
@@ -111,12 +113,12 @@ static void short_fork_and_nice_penalties() {
 static void test_short_remaining_time() {
     pid_t pid = getpid();
     struct sched_param param, param2;
-    param.requested_time = 2000;
+    param.requested_time = 1;
     param.sched_priority = 10;
     param.sched_short_prio = 100;
 
     assertTest(sched_setscheduler(pid, SCHED_SHORT, &param) == 0); // convert to SHORT
-    assertTest(short_remaining_time(pid) == 2000); // Problem - after rounds, there might be a miss match
+    assertTest(short_remaining_time(pid) == 1);
 }
 
 static void test_short_place_in_queue() {
@@ -165,6 +167,26 @@ static void test_short_place_in_queue() {
             }
         }
     }
+}
+
+static void short_converted_back_to_other() {
+    pid_t pid;
+    struct sched_param param, param2;
+    param.requested_time = 1;
+    param.sched_priority = 10;
+    param.sched_short_prio = 10;
+    int converted = 0;
+    int i;
+    pid = getpid();
+    assertTest(sched_setscheduler(pid, SCHED_SHORT, &param) == 0);
+    for(i = 0 ; i < 10000; i++) {
+        if (!is_short(pid)) {
+            converted = 1;
+        }
+    }
+    assertTest(converted == 1);
+    int policy = sched_getscheduler(pid);
+    assertTest(policy == SCHED_OTHER);
 }
 
 static void short_process_runs_before_other() {
@@ -264,6 +286,11 @@ int main() {
     pid = fork();
     if (pid == 0) {
         test_short_place_in_queue();
+        return 0;
+    }
+    pid = fork();
+    if (pid == 0) {
+        short_converted_back_to_other();
         return 0;
     }
 
