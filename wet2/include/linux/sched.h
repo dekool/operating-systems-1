@@ -460,6 +460,7 @@ struct task_struct {
 /* HW SHORT policy parameters */
 	int short_prio;
 	int short_time_slice;
+	int short_ticks_remaining;
 };
 
 /*
@@ -567,6 +568,7 @@ extern struct exec_domain	default_exec_domain;
     journal_info:	NULL,						\
     short_prio: 0,                         \
 	short_time_slice:   0,                   \
+	short_ticks_remaining:  0               \
 }
 
 

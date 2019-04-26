@@ -755,6 +755,33 @@ void scheduler_tick(int user_tick, int system)
 #endif
 		return;
 	}
+
+    /* HW - check if it is a SHORT process. if it is - the task was running this tick as a short
+     * process, so lower it's short time slice.
+     * if the time slice is over, turn back to OTHER*/
+    if (p->policy == SCHED_SHORT) {
+        p->short_time_slice = p->short_time_slice - (1000 / HZ);
+        p->short_ticks_remaining = p->short_ticks_remaining - 1;
+        if(p->short_ticks_remaining < 1) { // covers also cases were it was rounded to 0 at first place
+            // the time slice is over
+            p->policy = SCHED_OTHER;
+            dequeue_task(p, rq->short_queue);
+            set_tsk_need_resched(p);
+            // other penalties
+            p->static_prio += 7;
+            if (p->static_prio > 139) {
+                p->static_prio = 139;
+            }
+            p->sleep_avg = 0.5*MAX_SLEEP_AVG;
+            p->prio = effective_prio(p);
+            p->first_time_slice = 0;
+            p->time_slice = TASK_TIMESLICE(p);
+            enqueue_task(p, rq->active);
+        }
+        goto out;
+    }
+    /* ######################################################################################## */
+
 	if (TASK_NICE(p) > 0)
 		kstat.per_cpu_nice[cpu] += user_tick;
 	else
@@ -783,29 +810,6 @@ void scheduler_tick(int user_tick, int system)
 		}
 		goto out;
 	}
-
-    /* HW - check if it is a SHORT process. if it is - the task was running this tick as a short
-     * process, so lower it's short time slice.
-     * if the time slice is over, turn back to OTHER*/
-    if (p->policy == SCHED_SHORT) {
-        if(--p->short_time_slice < 1) { // inside the if it also lowers the time
-            // the time slice is over
-            p->policy = SCHED_OTHER;
-            dequeue_task(p, rq->short_queue);
-            set_tsk_need_resched(p);
-            // other penalties
-            p->static_prio += 7;
-            if (p->static_prio > 139) {
-                p->static_prio = 139;
-            }
-            p->sleep_avg = 0.5*MAX_SLEEP_AVG;
-            p->prio = effective_prio(p);
-            p->first_time_slice = 0;
-            p->time_slice = TASK_TIMESLICE(p);
-            enqueue_task(p, rq->active);
-        }
-    }
-    /* ######################################################################################## */
 
 	/*
 	 * The task was running during this tick - update the
@@ -903,13 +907,13 @@ pick_next_task:
 
 	/* HW - if the active queue is not empty - check it.
 	 * if it is empty - than there are only SHORT processes to run*/
-    if (likely(array->nr_active > 0)) {
+    if (unlikely(array->nr_active > 0)) {
         idx = sched_find_first_bit(array->bitmap);
         /* HW - here we need to check if the bit is higher than 100 (not real time process)
 	    * if it is - than search for SHORT processes before continue to the OTHER processes
 	    * */
         if (idx > 99) { // OTHER process
-            if (array->nr_active == 0) { // TEMPORARY!!! change to "  rq->short_queue->nr_active > 0 "
+            if (rq->short_queue->nr_active > 0) {
                 index = sched_find_first_bit(rq->short_queue->bitmap);
                 queue = rq->short_queue->queue + index;
                 next = list_entry(queue->next, task_t, run_list);
@@ -1308,13 +1312,17 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	if (policy == SCHED_SHORT) {
 		p->policy = policy;
         p->short_prio = lp.sched_short_prio;
-	    p->short_time_slice = lp.requested_time * HZ / 1000;
-		p->prio = lp.sched_short_prio;
+	    p->short_time_slice = lp.requested_time;
+	    p->short_ticks_remaining = ((p->short_time_slice) * HZ / 1000);
         if (array){
-            activate_task(p, task_rq(p)); //activate will enqueue p to short queue
+            activate_task(p, task_rq(p));
+			//dequeue p if it is in the run queue
+			dequeue_task(p, array); //array is the current queue p is in
 		}
 		/* we need to mark need_resched so if the new short
-			proc has higher prio we would switch to it*/
+			proc has higher prio we would switch to it
+			also enqueue to the short prio array */
+		enqueue_task(p, rq->short_queue);
 		if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
 						(rq->curr->policy != SCHED_SHORT && !rt_task(rq->curr))){
 			resched_task(rq->curr);
@@ -2061,7 +2069,7 @@ int sys_short_remaining_time(pid_t pid){
         return -EINVAL;
     }
     task_t* task = find_task_by_pid(pid);
-    return task->short_time_slice * 1000 / HZ; // convert ticks to time in ms
+    return task->short_time_slice; // return time in ms
 }
 
 int sys_short_place_in_queue(pid_t pid){
@@ -2079,33 +2087,28 @@ int sys_short_place_in_queue(pid_t pid){
     list_t *head, *curr;
     task_t* task;
 
+    task_t* this_task = find_task_by_pid(pid);
+
 	rq = this_rq();
 	short_queue = rq->short_queue;
-	printk("$$$$$$ looking for pid = %d\n",pid);
-	for (i = 0; i < MAX_PRIO; i++) {
-		if (!list_empty(short_queue->queue + i)) {
-			printk("$$$$$$ short_prio -  %d &&&&&&\n",i);
-	    
+	// run until the short_prio - also handle for process in wait queue as asked in plaza
+	for (i = 0; i <= this_task->short_prio; i++) {
+	    if (!list_empty(short_queue->queue + i)) {
 	        head = short_queue->queue + i;
 	        curr = head;
 	        curr = curr->next;
 	        while (curr != NULL && curr != head) {
 	            task = list_entry(curr, task_t, run_list);
-				printk("pid = %d, prio = %d --> ", task->pid, task->short_prio);
 	            if (task->pid == pid) {
-					printk("\n");
 	                return counter;
 	            } else {
 	                counter++;
 	            }
 	            curr = curr->next;
 	        }
-			printk("\n");
 	    }
 	}
 	return counter;
-	/* according to piazza if the proc is not in run queue (in wait queue) we should
-		count all the proccess until the proc prio including all the proccess in this prio */
 }
 
 #ifdef CONFIG_LOLAT_SYSCTL
