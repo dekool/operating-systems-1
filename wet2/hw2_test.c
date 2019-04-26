@@ -92,6 +92,81 @@ static void setscheduler_fail_already_SHORT() {
     assertTest(errno == EPERM);
 }
 
+static void short_fork_and_nice_penalties() {
+    pid_t pid = getpid();
+    struct sched_param param;
+    param.requested_time = 100;
+    param.sched_priority = 10;
+    param.sched_short_prio = 100;
+
+    assertTest(sched_setscheduler(pid, SCHED_SHORT, &param) == 0); // convert to SHORT
+    assertTest(fork() == -1);
+    assertTest(errno == EPERM);
+    assertTest(nice(2) == -1);
+    assertTest(errno == EPERM);
+    assertTest(setpriority(0, pid, 2) == -1);
+    assertTest(errno == EPERM);
+}
+
+static void test_short_remaining_time() {
+    pid_t pid = getpid();
+    struct sched_param param, param2;
+    param.requested_time = 2000;
+    param.sched_priority = 10;
+    param.sched_short_prio = 100;
+
+    assertTest(sched_setscheduler(pid, SCHED_SHORT, &param) == 0); // convert to SHORT
+    assertTest(short_remaining_time(pid) == 2000); // Problem - after rounds, there might be a miss match
+}
+
+static void test_short_place_in_queue() {
+    pid_t pid, pid1, pid2, pid3, pid4;
+    struct sched_param param, param1, param2, param3, param4;
+    param.requested_time = 200;
+    param.sched_priority = 10;
+    param.sched_short_prio = 10;
+    param1.requested_time = 200;
+    param1.sched_priority = 0;
+    param1.sched_short_prio = 100;
+    param2.requested_time = 200;
+    param2.sched_priority = 0;
+    param2.sched_short_prio = 50;
+    param3.requested_time = 200;
+    param3.sched_priority = 0;
+    param3.sched_short_prio = 70;
+    param4.requested_time = 200;
+    param4.sched_priority = 0;
+    param4.sched_short_prio = 50;
+    pid = getpid();
+    sched_setscheduler(pid, SCHED_FIFO, &param); // convert to real time so it will run first
+    pid1 = fork();
+    if (pid1 != 0) {
+        pid2 = fork();
+        if (pid2 != 0) {
+            pid3 = fork();
+            if (pid3 != 0) {
+                pid4 = fork();
+                if (pid4 != 0) {
+                    // first convert to OTHER in order to convert to SHORT
+                    assertTest(sched_setscheduler(pid1, SCHED_OTHER, &param1) == 0); // convert to OTHER
+                    assertTest(sched_setscheduler(pid2, SCHED_OTHER, &param2) == 0); // convert to OTHER
+                    assertTest(sched_setscheduler(pid3, SCHED_OTHER, &param3) == 0); // convert to OTHER
+                    assertTest(sched_setscheduler(pid4, SCHED_OTHER, &param4) == 0); // convert to OTHER
+                    // now convert to SHORT
+                    assertTest(sched_setscheduler(pid1, SCHED_SHORT, &param1) == 0); // convert to SHORT
+                    assertTest(sched_setscheduler(pid2, SCHED_SHORT, &param2) == 0); // convert to SHORT
+                    assertTest(sched_setscheduler(pid3, SCHED_SHORT, &param3) == 0); // convert to SHORT
+                    assertTest(sched_setscheduler(pid4, SCHED_SHORT, &param4) == 0); // convert to SHORT
+                    assertTest(short_place_in_queue(pid2) == 0);
+                    assertTest(short_place_in_queue(pid4) == 1);
+                    assertTest(short_place_in_queue(pid3) == 2);
+                    assertTest(short_place_in_queue(pid1) == 3);
+                }
+            }
+        }
+    }
+}
+
 static void short_process_runs_before_other() {
     int test_res = 0;
     int i;
@@ -174,6 +249,21 @@ int main() {
     pid = fork();
     if (pid == 0) {
         setscheduler_fail_already_SHORT();
+        return 0;
+    }
+    pid = fork();
+    if (pid == 0) {
+        short_fork_and_nice_penalties();
+        return 0;
+    }
+    pid = fork();
+    if (pid == 0) {
+        test_short_remaining_time();
+        return 0;
+    }
+    pid = fork();
+    if (pid == 0) {
+        test_short_place_in_queue();
         return 0;
     }
 

@@ -796,15 +796,15 @@ void scheduler_tick(int user_tick, int system)
      * process, so lower it's short time slice.
      * if the time slice is over, turn back to OTHER*/
     if (p->policy == SCHED_SHORT) {
-        if(!--p->short_time_slice) { // inside the if it also lowers the time
+        if(--p->short_time_slice < 1) { // inside the if it also lowers the time
             // the time slice is over
             p->policy = SCHED_OTHER;
             dequeue_task(p, rq->short_queue);
             set_tsk_need_resched(p);
             // other penalties
-            p->static_prio -= 7;
-            if (p->static_prio < 100) {
-                p->static_prio = 100;
+            p->static_prio += 7;
+            if (p->static_prio > 139) {
+                p->static_prio = 139;
             }
             p->sleep_avg = 0.5*MAX_SLEEP_AVG;
             p->prio = effective_prio(p);
@@ -1266,11 +1266,13 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
 	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_OTHER is 0.
 	 */
-	retval = -EINVAL;
-	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
-		goto out_unlock;
-	if ((policy == SCHED_OTHER) != (lp.sched_priority == 0))
-		goto out_unlock;
+	if (policy != SCHED_SHORT) {
+        retval = -EINVAL;
+        if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
+            goto out_unlock;
+        if ((policy == SCHED_OTHER) != (lp.sched_priority == 0))
+            goto out_unlock;
+	}
 
 	retval = -EPERM;
 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
@@ -1314,7 +1316,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	if (policy == SCHED_SHORT) {
 		p->policy = policy;
         p->short_prio = lp.sched_short_prio;
-	    p->short_time_slice = lp.requested_time * (HZ / 1000);
+	    p->short_time_slice = lp.requested_time * HZ / 1000;
         if (array){
             activate_task(p, task_rq(p));
 			//dequeue p if it is in the run queue
@@ -2076,7 +2078,7 @@ int sys_short_remaining_time(pid_t pid){
         return -EINVAL;
     }
     task_t* task = find_task_by_pid(pid);
-    return task->short_time_slice * (1000/HZ); // convert ticks to time in ms
+    return task->short_time_slice * 1000 / HZ; // convert ticks to time in ms
 }
 
 int sys_short_place_in_queue(pid_t pid){
@@ -2100,7 +2102,8 @@ int sys_short_place_in_queue(pid_t pid){
 	    if (!list_empty(short_queue->queue + i)) {
 	        head = short_queue->queue + i;
 	        curr = head;
-	        while (curr != NULL) {
+	        curr = curr->next;
+	        while (curr != NULL && curr != head) {
 	            task = list_entry(curr, task_t, run_list);
 	            if (task->pid == pid) {
 	                return counter;

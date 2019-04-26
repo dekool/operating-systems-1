@@ -36,8 +36,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wet2/arch/i386/kernel/entry.S">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-848">
-              <caret line="556" column="44" selection-start-line="556" selection-start-column="22" selection-end-line="556" selection-end-column="44" />
+            <state relative-caret-position="1685">
+              <caret line="312" column="40" lean-forward="true" selection-start-line="312" selection-start-column="40" selection-end-line="312" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -45,8 +45,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wet2/kernel/sched.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="1313" column="32" selection-start-line="1313" selection-start-column="32" selection-end-line="1313" selection-end-column="32" />
+            <state relative-caret-position="360">
+              <caret line="2100" column="36" lean-forward="true" selection-start-line="2100" selection-start-column="36" selection-end-line="2100" selection-end-column="36" />
               <folding>
                 <element signature="e#8500#8670#0" expanded="true" />
                 <element signature="e#8732#9546#0" expanded="true" />
@@ -57,7 +57,6 @@
                 <element signature="e#23947#23962#0" expanded="true" />
                 <element signature="e#24021#24087#0" expanded="true" />
                 <element signature="e#27365#27704#0" expanded="true" />
-                <element signature="e#46572#49739#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -66,19 +65,15 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wet2/hw2_test.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-68">
-              <caret line="145" column="36" selection-start-line="145" selection-start-column="36" selection-end-line="145" selection-end-column="36" />
+            <state relative-caret-position="241">
+              <caret line="192" column="22" lean-forward="true" selection-start-line="192" selection-start-column="22" selection-end-line="192" selection-end-column="22" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wet2/kernel/sys.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="377">
-              <caret line="221" column="8" selection-start-line="221" selection-start-column="8" selection-end-line="221" selection-end-column="55" />
-            </state>
-          </provider>
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -99,18 +94,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>MAX_SLEEP_AVG</find>
-      <find>activate_task</find>
-      <find>schedule(void</find>
-      <find>HZ</find>
-      <find>enqu</find>
-      <find>sched_find_first_bit</find>
-      <find>list_t</find>
-      <find>sched_setscheduler</find>
-      <find>tmp</find>
-      <find>sys_set</find>
-      <find>prio_array</find>
-      <find>sched_priority</find>
       <find>requested_time</find>
       <find>getschedu</find>
       <find>nice(void</find>
@@ -118,17 +101,29 @@
       <find>policy</find>
       <find>setpri</find>
       <find>CAP_SYS_NICE</find>
-      <find>sys_nice</find>
-      <find>setsc</find>
       <find>sys_sched_setscheduler</find>
       <find>setscheduler</find>
       <find>EFAULT</find>
       <find>pid</find>
-      <find>EINVAL</find>
       <find>sys</find>
       <find>MAX_USER_RT_PRIO</find>
       <find>errno</find>
       <find>setsch</find>
+      <find>sys_nice</find>
+      <find>sys_setpriority</find>
+      <find>set_tsk_need_resched</find>
+      <find>getp</find>
+      <find>PRIO_PROCESS</find>
+      <find>time_slice</find>
+      <find>sleep_Avg</find>
+      <find>short_time_slice</find>
+      <find>HZ / 1000</find>
+      <find>setsc</find>
+      <find>tick</find>
+      <find>EPERM</find>
+      <find>EINVAL</find>
+      <find>SCHED_FIFO</find>
+      <find>head</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -259,7 +254,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="67527000" />
+    <option name="totallyTimeSpent" value="80987000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1381" height="885" extended-state="6" />
@@ -322,26 +317,15 @@
     <entry file="file://$PROJECT_DIR$/wet2/kernel/fork.c">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/wet2/kernel/sys.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="221" column="8" selection-start-line="221" selection-start-column="8" selection-end-line="221" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wet2/arch/i386/kernel/entry.S">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-848">
-          <caret line="556" column="44" selection-start-line="556" selection-start-column="22" selection-end-line="556" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wet2/include/linux/sched.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="181" column="56" selection-start-line="181" selection-start-column="40" selection-end-line="181" selection-end-column="56" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wet2/kernel/sys.c">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/wet2/hw2_syscalls.h">
       <provider selected="true" editor-type-id="text-editor">
@@ -350,10 +334,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wet2/arch/i386/kernel/entry.S">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1685">
+          <caret line="312" column="40" lean-forward="true" selection-start-line="312" selection-start-column="40" selection-end-line="312" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wet2/kernel/sched.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="1313" column="32" selection-start-line="1313" selection-start-column="32" selection-end-line="1313" selection-end-column="32" />
+        <state relative-caret-position="360">
+          <caret line="2100" column="36" lean-forward="true" selection-start-line="2100" selection-start-column="36" selection-end-line="2100" selection-end-column="36" />
           <folding>
             <element signature="e#8500#8670#0" expanded="true" />
             <element signature="e#8732#9546#0" expanded="true" />
@@ -364,15 +355,14 @@
             <element signature="e#23947#23962#0" expanded="true" />
             <element signature="e#24021#24087#0" expanded="true" />
             <element signature="e#27365#27704#0" expanded="true" />
-            <element signature="e#46572#49739#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wet2/hw2_test.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-68">
-          <caret line="145" column="36" selection-start-line="145" selection-start-column="36" selection-end-line="145" selection-end-column="36" />
+        <state relative-caret-position="241">
+          <caret line="192" column="22" lean-forward="true" selection-start-line="192" selection-start-column="22" selection-end-line="192" selection-end-column="22" />
         </state>
       </provider>
     </entry>
