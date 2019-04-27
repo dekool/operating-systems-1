@@ -907,7 +907,7 @@ pick_next_task:
 
 	/* HW - if the active queue is not empty - check it.
 	 * if it is empty - than there are only SHORT processes to run*/
-    if (unlikely(array->nr_active > 0)) {
+    if (likely(array->nr_active > 0)) {
         idx = sched_find_first_bit(array->bitmap);
         /* HW - here we need to check if the bit is higher than 100 (not real time process)
 	    * if it is - than search for SHORT processes before continue to the OTHER processes
@@ -1315,14 +1315,10 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	    p->short_time_slice = lp.requested_time;
 	    p->short_ticks_remaining = ((p->short_time_slice) * HZ / 1000);
         if (array){
-            activate_task(p, task_rq(p));
-			//dequeue p if it is in the run queue
-			dequeue_task(p, array); //array is the current queue p is in
+            activate_task(p, task_rq(p)); //activate will enqueue p to short queue
 		}
 		/* we need to mark need_resched so if the new short
-			proc has higher prio we would switch to it
-			also enqueue to the short prio array */
-		enqueue_task(p, rq->short_queue);
+			proc has higher prio we would switch to it*/
 		if((rq->curr->policy == SCHED_SHORT && rq->curr->short_prio > p->short_prio) ||  \
 						(rq->curr->policy != SCHED_SHORT && !rt_task(rq->curr))){
 			resched_task(rq->curr);
@@ -2087,28 +2083,33 @@ int sys_short_place_in_queue(pid_t pid){
     list_t *head, *curr;
     task_t* task;
 
-    task_t* this_task = find_task_by_pid(pid);
-
+	task_t* this_task = find_task_by_pid(pid);
 	rq = this_rq();
 	short_queue = rq->short_queue;
-	// run until the short_prio - also handle for process in wait queue as asked in plaza
-	for (i = 0; i <= this_task->short_prio; i++) {
-	    if (!list_empty(short_queue->queue + i)) {
+	printk("$$$$$$ looking for pid = %d\n",pid);
+	for (i = 0; i < this_task->short_prio; i++) {
+		if (!list_empty(short_queue->queue + i)) {
+			printk("$$$$$$ short_prio -  %d &&&&&&\n",i);
+	    
 	        head = short_queue->queue + i;
 	        curr = head;
 	        curr = curr->next;
 	        while (curr != NULL && curr != head) {
 	            task = list_entry(curr, task_t, run_list);
+				printk("pid = %d, prio = %d --> ", task->pid, task->short_prio);
 	            if (task->pid == pid) {
+					printk("\n");
 	                return counter;
 	            } else {
 	                counter++;
 	            }
 	            curr = curr->next;
 	        }
+			printk("\n");
 	    }
 	}
 	return counter;
+	
 }
 
 #ifdef CONFIG_LOLAT_SYSCTL
