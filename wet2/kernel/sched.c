@@ -1312,6 +1312,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	if (policy == SCHED_SHORT) {
 		p->policy = policy;
         p->short_prio = lp.sched_short_prio;
+		p->prio = lp.sched_short_prio;
 	    p->short_time_slice = lp.requested_time;
 	    p->short_ticks_remaining = ((p->short_time_slice) * HZ / 1000);
         if (array){
@@ -2087,7 +2088,7 @@ int sys_short_place_in_queue(pid_t pid){
 	rq = this_rq();
 	short_queue = rq->short_queue;
 	printk("$$$$$$ looking for pid = %d\n",pid);
-	for (i = 0; i < this_task->short_prio; i++) {
+	for (i = 0; i < this_task->short_prio + 1; i++) {
 		if (!list_empty(short_queue->queue + i)) {
 			printk("$$$$$$ short_prio -  %d &&&&&&\n",i);
 	    
@@ -2098,14 +2099,15 @@ int sys_short_place_in_queue(pid_t pid){
 	            task = list_entry(curr, task_t, run_list);
 				printk("pid = %d, prio = %d --> ", task->pid, task->short_prio);
 	            if (task->pid == pid) {
-					printk("\n");
+					printk("\n counter = %d\n",counter);
 	                return counter;
 	            } else {
 	                counter++;
 	            }
 	            curr = curr->next;
 	        }
-			printk("\n");
+			printk("\n counter = %d\n",counter);
+	                
 	    }
 	}
 	return counter;
