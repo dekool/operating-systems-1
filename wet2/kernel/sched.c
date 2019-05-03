@@ -760,7 +760,6 @@ void scheduler_tick(int user_tick, int system)
      * process, so lower it's short time slice.
      * if the time slice is over, turn back to OTHER*/
     if (p->policy == SCHED_SHORT) {
-        p->short_time_slice = p->short_time_slice - (1000 / HZ);
         p->short_ticks_remaining = p->short_ticks_remaining - 1;
         if(p->short_ticks_remaining < 1) { // covers also cases were it was rounded to 0 at first place
             // the time slice is over
@@ -1391,7 +1390,7 @@ asmlinkage long sys_sched_getparam(pid_t pid, struct sched_param *param)
 	if (!p)
 		goto out_unlock;
 	lp.sched_priority = p->rt_priority;
-	lp.requested_time = p->short_time_slice;
+	lp.requested_time = p->short_time_slice; //this is now the original requested time
 	lp.sched_short_prio = p->short_prio;
 	read_unlock(&tasklist_lock);
 
@@ -2066,7 +2065,7 @@ int sys_short_remaining_time(pid_t pid){
         return -EINVAL;
     }
     task_t* task = find_task_by_pid(pid);
-    return task->short_time_slice; // return time in ms
+    return (task->short_ticks_remaining) / HZ * 1000; // return time in ms
 }
 
 int sys_short_place_in_queue(pid_t pid){
@@ -2087,27 +2086,20 @@ int sys_short_place_in_queue(pid_t pid){
 	task_t* this_task = find_task_by_pid(pid);
 	rq = this_rq();
 	short_queue = rq->short_queue;
-	printk("$$$$$$ looking for pid = %d\n",pid);
 	for (i = 0; i < this_task->short_prio + 1; i++) {
 		if (!list_empty(short_queue->queue + i)) {
-			printk("$$$$$$ short_prio -  %d &&&&&&\n",i);
-	    
-	        head = short_queue->queue + i;
+			head = short_queue->queue + i;
 	        curr = head;
 	        curr = curr->next;
 	        while (curr != NULL && curr != head) {
 	            task = list_entry(curr, task_t, run_list);
-				printk("pid = %d, prio = %d --> ", task->pid, task->short_prio);
-	            if (task->pid == pid) {
-					printk("\n counter = %d\n",counter);
-	                return counter;
+				if (task->pid == pid) {
+					return counter;
 	            } else {
 	                counter++;
 	            }
 	            curr = curr->next;
-	        }
-			printk("\n counter = %d\n",counter);
-	                
+	        }        
 	    }
 	}
 	return counter;
