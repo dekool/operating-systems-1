@@ -911,7 +911,7 @@ pick_next_task:
         /* HW - here we need to check if the bit is higher than 100 (not real time process)
 	    * if it is - than search for SHORT processes before continue to the OTHER processes
 	    * */
-        if (idx > 99) { // OTHER process
+        if (idx > MAX_RT_PRIO - 1) { // OTHER process
             if (rq->short_queue->nr_active > 0) {
                 index = sched_find_first_bit(rq->short_queue->bitmap);
                 queue = rq->short_queue->queue + index;
@@ -2065,7 +2065,7 @@ int sys_short_remaining_time(pid_t pid){
         return -EINVAL;
     }
     task_t* task = find_task_by_pid(pid);
-    return (task->short_ticks_remaining) / HZ * 1000; // return time in ms
+    return task->short_ticks_remaining * 1000 / HZ; // return time in ms
 }
 
 int sys_short_place_in_queue(pid_t pid){
