@@ -8,12 +8,12 @@ template <typename T>class PCQueue
 
 public:
     PCQueue(int nConsumer = 1) : queue(), nConsumerWaiting(0), nProducersWaiting(0),
-                                        sConsumer(nConsumer), sProducer(1){};
+                                    nConsumerInside(0), sConsumer(nConsumer), sProducer(1){};
 	// Blocks while queue is empty. When queue holds items, allows for a single
 	// thread to enter and remove an item from the front of the queue and return it. 
 	// Assumes multiple consumers.
 	T pop() {
-        
+
 	};
 
 	// Allows for producer to enter with *minimal delay* and push items to back of the queue.
@@ -28,6 +28,7 @@ private:
 	std::queue<T> queue;
 	int nConsumerWaiting;
 	int nProducersWaiting;
+	int nConsumerInside;
 	Semaphore sConsumer;
 	Semaphore sProducer;
 };

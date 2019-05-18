@@ -16,3 +16,4 @@ void Semaphore::down() {
     pthread_mutex_unlock(&lock);
 
 }
+
