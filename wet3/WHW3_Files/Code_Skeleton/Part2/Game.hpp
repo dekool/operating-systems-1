@@ -1,5 +1,6 @@
 #ifndef __GAMERUN_H
 #define __GAMERUN_H
+#include "Thread.hpp"
 #include "Headers.hpp"
 /*--------------------------------------------------------------------------------
 								  Auxiliary Structures

@@ -2,6 +2,7 @@
 #define _QUEUEL_H
 #include "Headers.hpp"
 #include "Semaphore.hpp"
+
 // Single Producer - Multiple Consumer queue
 template <typename T>class PCQueue
 {
@@ -25,7 +26,7 @@ public:
 	// Blocks while queue is empty. When queue holds items, allows for a single
 	// thread to enter and remove an item from the front of the queue and return it. 
 	// Assumes multiple consumers.
-	T pop() {
+    std::pair<T, std::chrono::time_point<std::chrono::system_clock>> pop(){
         queueItems.down();
         pthread_mutex_lock(&lock);
         while(producerWaiting){
@@ -35,7 +36,11 @@ public:
         T item = queue.front();
         queue.pop();
         pthread_mutex_unlock(&lock);
-        return item;
+        std::pair<T, std::chrono::time_point<std::chrono::system_clock>> p = std::pair<T, std::chrono::time_point<std::chrono::system_clock>>();
+        p.first=item;
+        p.second= std::chrono::system_clock::now();
+        //TODO change this to original instead of test
+        return p;
 	};
 
 	// Allows for producer to enter with *minimal delay* and push items to back of the queue.
@@ -79,9 +84,10 @@ private:
 	// Add your class members here
 	std::queue<T> queue; //queue for the objects we push and pop
 	bool producerWaiting;   //indicator if there is a producer waiting to push or is pushing
+    Semaphore queueItems;   //num of items in the queue which no consumer took ownership on
     pthread_mutex_t lock;
     pthread_cond_t cond;
-    Semaphore queueItems;   //num of items in the queue which no consumer took ownership on
+
 };
 // Recommendation: Use the implementation of the std::queue for this exercise
 #endif
