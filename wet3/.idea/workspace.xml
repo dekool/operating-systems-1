@@ -10,11 +10,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6676d632-1f0a-4489-94e5-d7c3b8c40190" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part1/Headers.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part1/PCQueue.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part1/Semahore.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part1/Semaphore.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part1/part1_main.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part2/Game.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part2/Game.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part2/Thread.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part2/main.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part2/utils.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/Part2/utils.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code_Skeleton/makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests/Example_Input.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tools/GameOfLife.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tools/rle_deocder/rle_decoder.pl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tools/rle_deocder/rle_example.rle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WHW3.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Consumer.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Consumer.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/job.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Headers.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Headers.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/PCQueue.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/PCQueue.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Semaphore.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Semaphore.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Thread.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Thread.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.hpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -30,8 +55,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="28" column="18" lean-forward="true" selection-start-line="28" selection-start-column="18" selection-end-line="28" selection-end-column="18" />
+            <state relative-caret-position="340">
+              <caret line="56" column="33" selection-start-line="56" selection-start-column="33" selection-end-line="56" selection-end-column="33" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -40,12 +65,61 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/job.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Consumer.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="290">
+              <caret line="35" column="32" lean-forward="true" selection-start-line="35" selection-start-column="32" selection-end-line="35" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="185">
-              <caret line="33" column="22" lean-forward="true" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
+            <state relative-caret-position="290">
+              <caret line="59" column="93" selection-start-line="59" selection-start-column="93" selection-end-line="59" selection-end-column="93" />
               <folding>
-                <element signature="e#40#62#0" expanded="true" />
+                <element signature="e#107#138#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="238">
+              <caret line="14" column="4" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Consumer.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#68#99#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/PCQueue.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#36#58#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -54,8 +128,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Headers.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="45" selection-start-line="45" selection-end-line="45" selection-end-column="38" />
+            <state relative-caret-position="341">
+              <caret line="52" column="8" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -63,31 +137,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="23" column="25" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="25" />
+            <state relative-caret-position="508">
+              <caret line="59" column="17" selection-start-line="59" selection-start-column="17" selection-end-line="59" selection-end-column="17" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.hpp">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="14" column="6" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Thread.hpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="44" selection-start-line="16" selection-start-column="44" selection-end-line="16" selection-end-column="44" />
+            <state relative-caret-position="187">
+              <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -103,6 +163,13 @@
       <find>number_of_neighbors</find>
       <find>new</find>
       <find>DEF_RESULTS_FILE_NAME</find>
+      <find>temp</find>
+      <find>num_of_cols</find>
+      <find>~</find>
+      <find>temp_line</find>
+      <find>filename</find>
+      <find>&lt;&lt;&lt;</find>
+      <find>curr</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -112,9 +179,13 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Thread.hpp" />
-        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.hpp" />
-        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.cpp" />
         <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/main.cpp" />
+        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.cpp" />
+        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.hpp" />
+        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.hpp" />
+        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/job.h" />
+        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.cpp" />
+        <option value="$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Consumer.cpp" />
       </list>
     </option>
   </component>
@@ -163,6 +234,11 @@
             <path>
               <item name="wet3" type="b2602c69:ProjectViewProjectNode" />
               <item name="wet3" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wet3" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wet3" type="462c0819:PsiDirectoryNode" />
+              <item name="Code_Skeleton" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wet3" type="b2602c69:ProjectViewProjectNode" />
@@ -231,12 +307,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1558183318952</updated>
-      <workItem from="1558183320211" duration="25380000" />
+      <workItem from="1558183320211" duration="30458000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="25380000" />
+    <option name="totallyTimeSpent" value="30458000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1348" height="832" extended-state="0" />
@@ -279,66 +355,99 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Semaphore.hpp">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Semahore.cpp">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/PCQueue.hpp">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.hpp">
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Semaphore.hpp">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.cpp">
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Thread.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="23" column="25" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="25" />
+        <state relative-caret-position="85">
+          <caret line="20" column="5" lean-forward="true" selection-start-line="20" selection-start-column="5" selection-end-line="20" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Consumer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#68#99#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/PCQueue.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#36#58#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part1/Headers.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="45" selection-start-line="45" selection-end-line="45" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Thread.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="44" selection-start-line="16" selection-start-column="44" selection-end-line="16" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="33" column="22" lean-forward="true" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
-          <folding>
-            <element signature="e#40#62#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="28" column="18" lean-forward="true" selection-start-line="28" selection-start-column="18" selection-end-line="28" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="341">
+          <caret line="52" column="8" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
-          <caret line="14" column="6" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
+          <caret line="14" column="4" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/utils.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="508">
+          <caret line="59" column="17" selection-start-line="59" selection-start-column="17" selection-end-line="59" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="290">
+          <caret line="59" column="93" selection-start-line="59" selection-start-column="93" selection-end-line="59" selection-end-column="93" />
+          <folding>
+            <element signature="e#107#138#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/job.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Game.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="56" column="33" selection-start-line="56" selection-start-column="33" selection-end-line="56" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WHW3_Files/Code_Skeleton/Part2/Consumer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="290">
+          <caret line="35" column="32" lean-forward="true" selection-start-line="35" selection-start-column="32" selection-end-line="35" selection-end-column="32" />
         </state>
       </provider>
     </entry>

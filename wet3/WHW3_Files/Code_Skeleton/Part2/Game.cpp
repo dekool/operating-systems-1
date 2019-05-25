@@ -1,30 +1,32 @@
 #include "Game.hpp"
 #include "utils.hpp"
+
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
-/*
- * constructor - save the parameters from the input and initiate the field parameters
- */
-Game::Game(game_params params) {
-    m_gen_num = params.n_gen;
-    m_thread_num = params.n_thread;
-    input_filename = params.filename;
-    interactive_on = params.interactive_on;
-    print_on = params.print_on;
-
-    // not sure we need to allocate space for these
-    //m_tile_hist = new vector<tile_record>();
-    //m_gen_hist = new vector<double>();
-    //m_threadpool = new vector<Thread*>();
-    //curr_field = new bool_mat();
-    //next_field = new bool_mat();
+Game::Game(game_params gameParams) : mats(2), job_array(2){
+    //initialize all the fields needed in Game
+    m_gen_num = gameParams.n_gen;
+    m_thread_num = gameParams.n_thread;
+    input_filename = gameParams.filename;
+    interactive_on = gameParams.interactive_on;
+    print_on = gameParams.print_on;
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&lock, &attr);
+    pthread_cond_init(&cond, NULL);
+    pthread_mutexattr_destroy(&attr);
+    //TODO destroy lock and cond in destroy
+    //matrix and job vector pointers
+    curr = &mats[0];
+    next = &mats[1];
+    curr_jobs = &job_array[0];
+    next_jobs = &job_array[1];
 
     num_of_rows = 0;
     num_of_cols = 0;
 }
-
-Game::~Game() {}
 
 void Game::run() {
 
@@ -45,28 +47,52 @@ void Game::run() {
 void Game::_init_game() {
 
 	// Create game fields - Consider using utils:read_file, utils::split
+	// Calculate effective threads number
 	// Create & Start threads
 	// Testing of your implementation will presume all threads are started here
 
-    vector<string> input = utils::read_lines(this->input_filename);
-    vector<string> line;
-    char delimiter = ' ';
+	//converting input matrix to bool_mat
+    *curr = utils::read_input(input_filename);
+    num_of_rows = curr->size();
+    num_of_cols = (curr->front()).size(); // assuming there is at least 1 row
+    // create empty field in the next field
     vector<bool> temp_line;
-    for (uint i = 0; i < input.size(); i++) {
-        line = utils::split(input[i], delimiter);
-        for (uint j = 0; j < line.size(); j++) {
-            temp_line.push_back(line[j] == "1"); // save as bool
-        }
-        this->curr_field.push_back(temp_line);
-        temp_line.clear();
+    temp_line.assign(num_of_cols, false); //create a row. all value start as false
+    next->assign(num_of_rows, temp_line); // create all the rows
+
+    //calculating effective threads num
+    m_thread_num = (curr->size() < m_thread_num) ? curr->size() : m_thread_num;
+
+    //initialize threads
+    //TODO check if start was a success
+    //creates all consumer thread and starts them (they will be blocked until we add jobs to queue
+    for(uint i = 0; i < m_thread_num ; i++){
+        auto c = new Consumer(i, &pcQueue);
+        c->start();
+        m_threadpool.push_back(c);
     }
-	this->num_of_rows = this->curr_field.size();
-	this->num_of_cols = this->curr_field[0].size(); // assuming there is at least 1 row
-	string temp_str;
-	// create empty field in the next field
-	temp_line.assign(this->num_of_cols, false); //create a row. all value start as false
-	this->next_field.assign(this->num_of_rows, temp_line); // create all the rows
-	// TODO: separate the work between different threads, and create them
+
+    //creates jobs, only need to calculate once
+    make_jobs(false, curr, next);
+
+}
+
+//TODO check if we can implement this better (maybe seperate the end flag and the vector?)
+void Game::make_jobs(bool end_flag, bool_mat* curr, bool_mat* next) {
+    for(uint i = 0 ; i < m_thread_num ; i++){
+        uint block_size = num_of_rows / m_thread_num;
+        uint start_row = block_size * i ;
+        uint end_row = start_row + block_size - 1;
+        //giving last thread all the rows that remains
+        if( i == m_thread_num - 1){
+            end_row = num_of_rows - 1;
+        }
+        //job is define in job.h
+        job j1 = {curr, next, start_row, end_row, &m_gen_hist, end_flag, &threads_left, &lock, &cond};
+        job j2 = {next, curr, start_row, end_row, &m_gen_hist, end_flag, &threads_left, &lock, &cond};
+        job_array[0].push_back(j1);
+        job_array[1].push_back(j2);
+    }
 }
 
 void Game::_step(uint curr_gen) {
@@ -75,93 +101,64 @@ void Game::_step(uint curr_gen) {
 	// Swap pointers between current and next field 
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
 
-	int neighbors;
-	// for now - do all the job here TODO: give the job to the workers
-    for (uint i=0; i < this->num_of_rows; i++) {
-        for (uint j=0; j < this->num_of_cols; j++) {
-            neighbors = this->number_of_neighbors(i, j);
-            if (neighbors == 3) {
-                this->next_field[i][j] = true;
-            }
-            else if (this->curr_field[i][j] && neighbors == 2) { // the case of 3 neighbors is already covered
-                this->next_field[i][j] = true;
-            }
-            else {
-                this->next_field[i][j] = false;
-            }
-        }
-    }
-    // swap fields
-    std::swap(this->curr_field, this->next_field);
-}
+    threads_left = m_thread_num; //reset threads left each iteration
+    pcQueue.pushAll(*curr_jobs); //add curr_job to the queue
 
-int Game::number_of_neighbors(uint i, uint j) {
-    int counter = 0;
-    // adding is faster than branching
-    // TODO: idea to make it faster - add dummy rows and column around the field, and don't branch at all
-    if (i == 0) { // first row
-        if (j == 0) {
-            counter += this->curr_field[i+1][j+1] + this->curr_field[i+1][j] +  this->curr_field[i][j+1];
-        }
-        else if (j == this->num_of_cols - 1) {
-            counter += this->curr_field[i+1][j-1] + this->curr_field[i+1][j] +  this->curr_field[i][j-1];
-        }
-        else {
-            counter += this->curr_field[i+1][j+1] + this->curr_field[i+1][j] +  this->curr_field[i][j+1] + \
-            this->curr_field[i+1][j-1] +  this->curr_field[i][j-1];
-        }
+    //wait until all threads finish
+    pthread_mutex_lock(&lock);
+    while(threads_left > 0){
+        pthread_cond_wait(&cond, &lock);
     }
-    else if (j == 0) { // first column
-        if (i == this->num_of_rows - 1) {
-            counter += this->curr_field[i-1][j+1] + this->curr_field[i-1][j] +  this->curr_field[i][j+1];
-        }
-        else {
-            counter += this->curr_field[i+1][j+1] + this->curr_field[i+1][j] +  this->curr_field[i][j+1] + \
-            this->curr_field[i-1][j+1] +  this->curr_field[i-1][j];
-        }
-    }
-    else if (i == this->num_of_rows - 1) { // last row
-        if (j == this->num_of_cols - 1) {
-            counter += this->curr_field[i-1][j-1] + this->curr_field[i-1][j] +  this->curr_field[i][j-1];
-        }
-        else {
-            counter += this->curr_field[i-1][j+1] + this->curr_field[i-1][j] +  this->curr_field[i][j+1] + \
-            this->curr_field[i-1][j-1] +  this->curr_field[i][j-1];
-        }
-    }
-    else if (j == this->num_of_cols - 1) { // last column
-        if (i == this->num_of_rows - 1) {
-            counter += this->curr_field[i-1][j-1] + this->curr_field[i-1][j] +  this->curr_field[i][j-1];
-        }
-        else {
-            counter += this->curr_field[i+1][j-1] + this->curr_field[i+1][j] +  this->curr_field[i][j-1] + \
-            this->curr_field[i-1][j-1] +  this->curr_field[i-1][j];
-        }
-    }
-    else { // middle of the field
-        counter = this->curr_field[i-1][j-1] + this->curr_field[i-1][j] + this->curr_field[i-1][j+1] + \
-        this->curr_field[i][j-1] + this->curr_field[i][j+1] + \
-        this->curr_field[i+1][j-1] + this->curr_field[i+1][j] + this->curr_field[i+1][j+1];
-    }
-    return counter;
+    pthread_mutex_unlock(&lock);
+
+    // Boards pointer swap
+    std::swap(curr, next);
+
+    // Jobs pointer swap
+    std::swap(curr_jobs, next_jobs);
 }
 
 void Game::_destroy_game(){
 	// Destroys board and frees all threads and resources 
 	// Not implemented in the Game's destructor for testing purposes. 
 	// All threads must be joined here
+	//TODO make this better looking
+	make_jobs(true, curr, next);
+	pcQueue.pushAll(*curr_jobs);
 	for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
+        delete m_threadpool[i];
     }
+
 }
 
+uint Game::thread_num() const {
+    return m_thread_num;
+}
+
+//TODO implement this.(this is only for testing the game)
+const vector<tile_record> Game::tile_hist() const {
+    vector<tile_record> a;
+    return a;
+}
+
+//TODO implement this.(this is only for testing the game)
+const vector<double> Game::gen_hist() const {
+    vector<double> a;
+    return a;
+}
+
+Game::~Game() {
+    //I`m not sure what we suppose to destroy here
+    // we haven't used New - so nothing for now
+}
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
 
 	if(print_on){ 
-
+        //TODO check this prints is okay, tested in clion
 		// Clear the screen, to create a running animation 
 		if(interactive_on)
 			system("clear");
@@ -169,13 +166,11 @@ inline void Game::print_board(const char* header) {
 		// Print small header if needed
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
-		
-		// TODO: Print the board
         cout << u8"╔" << string(u8"═") * num_of_cols << u8"╗" << endl;
         for (uint i = 0; i < num_of_rows; ++i) {
             cout << u8"║";
             for (uint j = 0; j < num_of_cols; ++j) {
-                cout << (curr_field[i][j] ? u8"█" : u8"░");
+                cout << ((*curr)[i][j] ? u8"█" : u8"░");
             }
             cout << u8"║" << endl;
         }

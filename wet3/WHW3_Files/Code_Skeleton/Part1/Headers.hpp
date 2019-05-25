@@ -58,6 +58,5 @@ typedef vector<vector<bool>> bool_mat; // Use this as your Game Field
 #define DEBUG_MES(mes) if(DEBUG) cout << mes << endl;
 #define user_error(mes,exp) if(!exp){cerr << "Fatal: " <<  mes << endl; exit(1);}
 
-
 #endif
 

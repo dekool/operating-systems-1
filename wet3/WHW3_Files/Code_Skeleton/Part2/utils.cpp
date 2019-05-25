@@ -31,6 +31,35 @@ vector<string> utils::split(const string& s, char delimiter)
 	return tokens;
 }
 
+//this is only a draft, there is probably better way to do this
+//TODO make this faster/better
+bool_mat utils::stringToMat(const vector<vector<string>> &input_mat) {
+    vector<bool> a(input_mat[0].size(), true);
+    bool_mat res(input_mat.size(), a);
+    for(int i = 0; i < input_mat.size(); i++){
+        for(int j = 0; j < input_mat[i].size(); j++){
+            res[i][j] = input_mat[i][j] == "1";
+        }
+    }
+    return res;
+}
+
+bool_mat utils::read_input(string input_filename) {
+    bool_mat field;
+    vector<string> input = utils::read_lines(input_filename);
+    vector<string> line;
+    vector<bool> temp_line;
+    for (uint i = 0; i < input.size(); i++) {
+        line = utils::split(input[i], DEF_MAT_DELIMITER);
+        for (uint j = 0; j < line.size(); j++) {
+            temp_line.push_back(line[j] == "1"); // save as bool
+        }
+        field.push_back(temp_line);
+        temp_line.clear();
+    }
+    return field;
+}
+
 /*--------------------------------------------------------------------------------
 								String Extentions
 --------------------------------------------------------------------------------*/
