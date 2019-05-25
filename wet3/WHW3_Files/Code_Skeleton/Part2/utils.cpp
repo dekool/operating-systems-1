@@ -31,6 +31,19 @@ vector<string> utils::split(const string& s, char delimiter)
 	return tokens;
 }
 
+//this is only a draft, there is probably better way to do this
+//TODO make this faster/better
+bool_mat utils::stringToMat(const vector<vector<string>> &input_mat) {
+    vector<bool> a(input_mat[0].size(), true);
+    bool_mat res(input_mat.size(), a);
+    for(int i = 0; i < input_mat.size(); i++){
+        for(int j = 0; j < input_mat[i].size(); j++){
+            res[i][j] = input_mat[i][j] == "1";
+        }
+    }
+    return res;
+}
+
 /*--------------------------------------------------------------------------------
 								String Extentions
 --------------------------------------------------------------------------------*/

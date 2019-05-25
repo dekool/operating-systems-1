@@ -26,7 +26,7 @@ public:
 	// Blocks while queue is empty. When queue holds items, allows for a single
 	// thread to enter and remove an item from the front of the queue and return it. 
 	// Assumes multiple consumers.
-    std::pair<T, std::chrono::time_point<std::chrono::system_clock>> pop(){
+    T pop(){
         queueItems.down();
         pthread_mutex_lock(&lock);
         while(producerWaiting){
@@ -36,11 +36,8 @@ public:
         T item = queue.front();
         queue.pop();
         pthread_mutex_unlock(&lock);
-        std::pair<T, std::chrono::time_point<std::chrono::system_clock>> p = std::pair<T, std::chrono::time_point<std::chrono::system_clock>>();
-        p.first=item;
-        p.second= std::chrono::system_clock::now();
-        //TODO change this to original instead of test
-        return p;
+
+        return item;
 	};
 
 	// Allows for producer to enter with *minimal delay* and push items to back of the queue.
