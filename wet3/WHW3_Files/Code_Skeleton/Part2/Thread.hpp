@@ -14,6 +14,7 @@ public:
 	// Creates the internal thread via pthread_create 
 	bool start()
 	{
+	    return true; // just for compilation
 	}
 
 	// Will not return until the internal thread has exited. 

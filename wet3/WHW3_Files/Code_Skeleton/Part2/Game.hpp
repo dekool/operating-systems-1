@@ -1,6 +1,7 @@
 #ifndef __GAMERUN_H
 #define __GAMERUN_H
 #include "Headers.hpp"
+#include "Thread.hpp"
 /*--------------------------------------------------------------------------------
 								  Auxiliary Structures
 --------------------------------------------------------------------------------*/
@@ -30,6 +31,9 @@ public:
 	const vector<tile_record> tile_hist() const; // Returns the tile timing histogram
 	uint thread_num() const; //Returns the effective number of running threads = min(thread_num, field_height)
 
+    // added functions
+    int number_of_neighbors(uint i, uint j);
+
 
 protected: // All members here are protected, instead of private for testing purposes
 
@@ -49,7 +53,10 @@ protected: // All members here are protected, instead of private for testing pur
 	bool interactive_on; // Controls interactive mode - that means, prints the board as an animation instead of a simple dump to STDOUT 
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
 	
-	// TODO: Add in your variables and synchronization primitives  
-
+	// TODO: Add in your variables and synchronization primitives
+    string input_filename;
+    bool_mat curr_field, next_field;
+    uint num_of_rows;
+    uint num_of_cols;
 };
 #endif
