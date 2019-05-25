@@ -34,6 +34,9 @@ public:
 	const vector<tile_record> tile_hist() const; // Returns the tile timing histogram
 	uint thread_num() const; //Returns the effective number of running threads = min(thread_num, field_height)
 
+    // added functions
+    int number_of_neighbors(uint i, uint j);
+
 
 protected: // All members here are protected, instead of private for testing purposes
 
@@ -57,7 +60,7 @@ protected: // All members here are protected, instead of private for testing pur
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
 
 	// TODO: Add in your variables and synchronization primitives  
-    string filename;
+    string input_filename;
     vector<bool_mat> mats; //curr and next matrix
     bool_mat* curr;
     bool_mat* next;
@@ -68,5 +71,8 @@ protected: // All members here are protected, instead of private for testing pur
     vector<job>* next_jobs;
     pthread_mutex_t lock;
     pthread_cond_t cond;
+
+    uint num_of_rows;
+    uint num_of_cols;
 };
 #endif

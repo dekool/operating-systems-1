@@ -44,6 +44,22 @@ bool_mat utils::stringToMat(const vector<vector<string>> &input_mat) {
     return res;
 }
 
+bool_mat utils::read_input(string input_filename) {
+    bool_mat field;
+    vector<string> input = utils::read_lines(input_filename);
+    vector<string> line;
+    vector<bool> temp_line;
+    for (uint i = 0; i < input.size(); i++) {
+        line = utils::split(input[i], DEF_MAT_DELIMITER);
+        for (uint j = 0; j < line.size(); j++) {
+            temp_line.push_back(line[j] == "1"); // save as bool
+        }
+        field.push_back(temp_line);
+        temp_line.clear();
+    }
+    return field;
+}
+
 /*--------------------------------------------------------------------------------
 								String Extentions
 --------------------------------------------------------------------------------*/

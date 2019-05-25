@@ -5,10 +5,10 @@
 								
 --------------------------------------------------------------------------------*/
 Game::Game(game_params gameParams) : mats(2), job_array(2){
-    //initiailize all the fields needed in Game
+    //initialize all the fields needed in Game
     m_gen_num = gameParams.n_gen;
     m_thread_num = gameParams.n_thread;
-    filename = gameParams.filename;
+    input_filename = gameParams.filename;
     interactive_on = gameParams.interactive_on;
     print_on = gameParams.print_on;
     pthread_mutexattr_t attr;
@@ -23,6 +23,9 @@ Game::Game(game_params gameParams) : mats(2), job_array(2){
     next = &mats[1];
     curr_jobs = &job_array[0];
     next_jobs = &job_array[1];
+
+    num_of_rows = 0;
+    num_of_cols = 0;
 }
 
 void Game::run() {
@@ -37,7 +40,8 @@ void Game::run() {
 		print_board(nullptr);
 	} // generation loop
 	print_board("Final Board");
-	_destroy_game();
+	// TODO: after adding the threads - add the destroy game
+	//_destroy_game();
 }
 
 void Game::_init_game() {
@@ -48,21 +52,21 @@ void Game::_init_game() {
 	// Testing of your implementation will presume all threads are started here
 
 	//converting input matrix to bool_mat
-	//TODO check if there is a better way to implement this part
-    vector<string> input_mat = utils::read_lines(filename);
-    vector<vector<string>> matrix;
-    for(int i = 0 ; i< input_mat.size(); i++){
-        matrix.push_back(utils::split(input_mat[i], DEF_MAT_DELIMITER));
-    }
-    *curr = utils::stringToMat(matrix);
-    *next = *curr; //this is only to make next the same dimentions of curr
-    //caluculating effective threads num
+    *curr = utils::read_input(input_filename);
+    num_of_rows = curr->size();
+    num_of_cols = (curr->front()).size(); // assuming there is at least 1 row
+    // create empty field in the next field
+    vector<bool> temp_line;
+    temp_line.assign(num_of_cols, false); //create a row. all value start as false
+    next->assign(num_of_rows, temp_line); // create all the rows
+
+    //calculating effective threads num
     m_thread_num = (curr->size() < m_thread_num) ? curr->size() : m_thread_num;
 
     //initialize threads
     //TODO check if start was a success
     //creates all consumer thread and starts them (they will be blocked until we add jobs to queue
-    for(int i = 0; i < m_thread_num ; i++){
+    for(uint i = 0; i < m_thread_num ; i++){
         auto c = new Consumer(i, &pcQueue);
         c->start();
         m_threadpool.push_back(c);
@@ -75,14 +79,13 @@ void Game::_init_game() {
 
 //TODO check if we can implement this better (maybe seperate the end flag and the vector?)
 void Game::make_jobs(bool end_flag, bool_mat* curr, bool_mat* next) {
-    for(int i = 0 ; i < m_thread_num ; i++){
-        int row_num = curr->size();
-        int block_size = row_num / m_thread_num;
-        int start_row = block_size * i ;
-        int end_row = start_row + block_size - 1;
-        //givinig last thread all the rows that remains
+    for(uint i = 0 ; i < m_thread_num ; i++){
+        uint block_size = num_of_rows / m_thread_num;
+        uint start_row = block_size * i ;
+        uint end_row = start_row + block_size - 1;
+        //giving last thread all the rows that remains
         if( i == m_thread_num - 1){
-            end_row = row_num - 1;
+            end_row = num_of_rows - 1;
         }
         //job is define in job.h
         job j1 = {curr, next, start_row, end_row, &m_gen_hist, end_flag, &threads_left, &lock, &cond};
@@ -97,6 +100,7 @@ void Game::_step(uint curr_gen) {
 	// Wait for the workers to finish calculating 
 	// Swap pointers between current and next field 
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
+
     threads_left = m_thread_num; //reset threads left each iteration
     pcQueue.pushAll(*curr_jobs); //add curr_job to the queue
 
@@ -108,14 +112,10 @@ void Game::_step(uint curr_gen) {
     pthread_mutex_unlock(&lock);
 
     // Boards pointer swap
-    bool_mat* temp = curr;
-    curr = next;
-    next = temp;
+    std::swap(curr, next);
 
     // Jobs pointer swap
-    vector<job>* t = curr_jobs;
-    curr_jobs = next_jobs;
-    next_jobs = t;
+    std::swap(curr_jobs, next_jobs);
 }
 
 void Game::_destroy_game(){
@@ -150,6 +150,7 @@ const vector<double> Game::gen_hist() const {
 
 Game::~Game() {
     //I`m not sure what we suppose to destroy here
+    // we haven't used New - so nothing for now
 }
 /*--------------------------------------------------------------------------------
 								
@@ -165,18 +166,15 @@ inline void Game::print_board(const char* header) {
 		// Print small header if needed
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
-        int field_height = curr->size();
-        int field_width = curr->front().size();
-        bool_mat field = *curr;
-        cout << u8"╔" << string(u8"═") * field_width << u8"╗" << endl;
-        for (uint i = 0; i < field_height; ++i) {
+        cout << u8"╔" << string(u8"═") * num_of_cols << u8"╗" << endl;
+        for (uint i = 0; i < num_of_rows; ++i) {
             cout << u8"║";
-            for (uint j = 0; j < field_width; ++j) {
-                cout << (field[i][j] ? u8"█" : u8"░");
+            for (uint j = 0; j < num_of_cols; ++j) {
+                cout << ((*curr)[i][j] ? u8"█" : u8"░");
             }
             cout << u8"║" << endl;
         }
-        cout << u8"╚" << string(u8"═") * field_width << u8"╝" << endl;
+        cout << u8"╚" << string(u8"═") * num_of_cols << u8"╝" << endl;
 
 		// Display for GEN_SLEEP_USEC micro-seconds on screen 
 		if(interactive_on)

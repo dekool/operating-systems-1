@@ -62,5 +62,78 @@ void Consumer::calculateBoard(job job) {
 
         }
     }
+
+    // TODO: test if this method makes it faster
+    /*
+    int neighbors;
+    for (uint i=0; i < this->num_of_rows; i++) {
+        for (uint j=0; j < this->num_of_cols; j++) {
+            neighbors = this->number_of_neighbors(i, j);
+            if (neighbors == 3) {
+                this->next_field[i][j] = true;
+            }
+            else if (this->curr_field[i][j] && neighbors == 2) { // the case of 3 neighbors is already covered
+                this->next_field[i][j] = true;
+            }
+            else {
+                this->next_field[i][j] = false;
+            }
+        }
+    }
+
+     int Game::number_of_neighbors(uint i, uint j) {
+    int counter = 0;
+    // adding is faster than branching
+    // TODO: idea to make it faster - add dummy rows and column around the field, and don't branch at all
+    if (i == 0) { // first row
+        if (j == 0) {
+            counter += this->curr_field[i+1][j+1] + this->curr_field[i+1][j] +  this->curr_field[i][j+1];
+        }
+        else if (j == this->num_of_cols - 1) {
+            counter += this->curr_field[i+1][j-1] + this->curr_field[i+1][j] +  this->curr_field[i][j-1];
+        }
+        else {
+            counter += this->curr_field[i+1][j+1] + this->curr_field[i+1][j] +  this->curr_field[i][j+1] + \
+            this->curr_field[i+1][j-1] +  this->curr_field[i][j-1];
+        }
+    }
+    else if (j == 0) { // first column
+        if (i == this->num_of_rows - 1) {
+            counter += this->curr_field[i-1][j+1] + this->curr_field[i-1][j] +  this->curr_field[i][j+1];
+        }
+        else {
+            counter += this->curr_field[i+1][j+1] + this->curr_field[i+1][j] +  this->curr_field[i][j+1] + \
+            this->curr_field[i-1][j+1] +  this->curr_field[i-1][j];
+        }
+    }
+    else if (i == this->num_of_rows - 1) { // last row
+        if (j == this->num_of_cols - 1) {
+            counter += this->curr_field[i-1][j-1] + this->curr_field[i-1][j] +  this->curr_field[i][j-1];
+        }
+        else {
+            counter += this->curr_field[i-1][j+1] + this->curr_field[i-1][j] +  this->curr_field[i][j+1] + \
+            this->curr_field[i-1][j-1] +  this->curr_field[i][j-1];
+        }
+    }
+    else if (j == this->num_of_cols - 1) { // last column
+        if (i == this->num_of_rows - 1) {
+            counter += this->curr_field[i-1][j-1] + this->curr_field[i-1][j] +  this->curr_field[i][j-1];
+        }
+        else {
+            counter += this->curr_field[i+1][j-1] + this->curr_field[i+1][j] +  this->curr_field[i][j-1] + \
+            this->curr_field[i-1][j-1] +  this->curr_field[i-1][j];
+        }
+    }
+    else { // middle of the field
+        counter = this->curr_field[i-1][j-1] + this->curr_field[i-1][j] + this->curr_field[i-1][j+1] + \
+        this->curr_field[i][j-1] + this->curr_field[i][j+1] + \
+        this->curr_field[i+1][j-1] + this->curr_field[i+1][j] + this->curr_field[i+1][j+1];
+    }
+    return counter;
+     }
+
+     */
+
+
 }
 

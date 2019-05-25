@@ -9,6 +9,7 @@ namespace utils {
 	vector<string> split(const string& s, char delimiter); //Splits a string
 	// Converts string matrix to game matrix
 	bool_mat stringToMat(const vector<vector<string>>& input_mat);
+    bool_mat read_input(string input_filename);
 }
 
 string repeat(string str, const size_t n);

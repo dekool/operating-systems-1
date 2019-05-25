@@ -9,8 +9,8 @@
 struct job{
     bool_mat* curr;
     bool_mat* next;
-    int start_row;
-    int end_row;
+    uint start_row;
+    uint end_row;
     vector<double>* gen_hist;
     bool end_flag;
     int* threads_left;
