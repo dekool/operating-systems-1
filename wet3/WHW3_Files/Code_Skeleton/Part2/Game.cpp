@@ -11,13 +11,14 @@ Game::Game(game_params gameParams) : mats(2), job_array(2){
     input_filename = gameParams.filename;
     interactive_on = gameParams.interactive_on;
     print_on = gameParams.print_on;
+    //initialize the locks
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
-    pthread_mutex_init(&lock, &attr);
+    pthread_mutex_init(&lock1, &attr);
+    pthread_mutex_init(&lock2, &attr);
     pthread_cond_init(&cond, NULL);
     pthread_mutexattr_destroy(&attr);
-    //TODO destroy lock and cond in destroy
     //matrix and job vector pointers
     curr = &mats[0];
     next = &mats[1];
@@ -40,7 +41,6 @@ void Game::run() {
 		print_board(nullptr);
 	} // generation loop
 	print_board("Final Board");
-	// TODO: after adding the threads - add the destroy game
 	_destroy_game();
 }
 
@@ -88,8 +88,8 @@ void Game::make_jobs(bool end_flag, bool_mat* curr, bool_mat* next) {
             end_row = num_of_rows - 1;
         }
         //job is define in job.h
-        job j1 = {curr, next, start_row, end_row, &m_gen_hist, end_flag, &threads_left, &lock, &cond};
-        job j2 = {next, curr, start_row, end_row, &m_gen_hist, end_flag, &threads_left, &lock, &cond};
+        job j1 = {curr, next, start_row, end_row, &m_tile_hist, end_flag, &threads_left, &lock1, &lock2, &cond};
+        job j2 = {next, curr, start_row, end_row, &m_tile_hist, end_flag, &threads_left, &lock1, &lock2, &cond};
         job_array[0].push_back(j1);
         job_array[1].push_back(j2);
     }
@@ -105,11 +105,11 @@ void Game::_step(uint curr_gen) {
     pcQueue.pushAll(*curr_jobs); //add curr_job to the queue
 
     //wait until all threads finish
-    pthread_mutex_lock(&lock);
+    pthread_mutex_lock(&lock1);
     while(threads_left > 0){
-        pthread_cond_wait(&cond, &lock);
+        pthread_cond_wait(&cond, &lock1);
     }
-    pthread_mutex_unlock(&lock);
+    pthread_mutex_unlock(&lock1);
 
     // Boards pointer swap
     std::swap(curr, next);
@@ -129,36 +129,31 @@ void Game::_destroy_game(){
         m_threadpool[i]->join();
         delete m_threadpool[i];
     }
-
+    pthread_mutex_destroy(&lock1);
+    pthread_mutex_destroy(&lock2);
+    pthread_cond_destroy(&cond);
 }
 
 uint Game::thread_num() const {
     return m_thread_num;
 }
 
-//TODO implement this.(this is only for testing the game)
 const vector<tile_record> Game::tile_hist() const {
-    vector<tile_record> a;
-    return a;
+    return m_tile_hist;
 }
 
-//TODO implement this.(this is only for testing the game)
 const vector<double> Game::gen_hist() const {
-    vector<double> a;
-    return a;
+    return m_gen_hist;
 }
 
 Game::~Game() {
-    //I`m not sure what we suppose to destroy here
-    // we haven't used New - so nothing for now
 }
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
 
-	if(print_on){ 
-        //TODO check this prints is okay, tested in clion
+	if(print_on){
 		// Clear the screen, to create a running animation 
 		if(interactive_on)
 			system("clear");

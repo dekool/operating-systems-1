@@ -15,6 +15,10 @@ namespace utils {
 string repeat(string str, const size_t n);
 string operator*(string str, size_t n);
 
+struct tile_record {
+    double tile_compute_time; // Compute time for the tile
+    uint thread_id; // The thread responsible for the compute
+};
 
 
 #endif

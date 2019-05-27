@@ -11,18 +11,27 @@ void Consumer::thread_workload() {
         if(job.end_flag){
             break;
         }
-
+        auto gen_start = std::chrono::system_clock::now();
         //calculating next board (only for the block given)
         calculateBoard(job);
+        auto gen_end = std::chrono::system_clock::now();
+        //compute calculation time and push to tile hist
+        double compute_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count();
+        tile_record rec = {compute_time, m_thread_id};
+        // must lock because we don`t have the step number here
+        //TODO check at what order we need to put the tile records (might be by thread_id)
+        pthread_mutex_lock(job.lock2);
+        job.tile_hist->push_back(rec);
+        pthread_mutex_unlock(job.lock2);
 
         //updating that the thread has finished it`s job, must lock because all other threads will do the same
-        pthread_mutex_lock(job.lock);
+        pthread_mutex_lock(job.lock1);
         (*(job.threads_left))--;
         //if all threads has finished wake the producer
         if(!(*job.threads_left)){
             pthread_cond_signal(job.cond);
         }
-        pthread_mutex_unlock(job.lock);
+        pthread_mutex_unlock(job.lock1);
     }
 }
 

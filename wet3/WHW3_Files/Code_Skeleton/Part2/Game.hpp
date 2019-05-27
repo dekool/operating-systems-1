@@ -16,10 +16,7 @@ struct game_params {
 	bool print_on; 
 };
 
-struct tile_record {
-	double tile_compute_time; // Compute time for the tile
-	uint thread_id; // The thread responsible for the compute 
-};
+
 
 /*--------------------------------------------------------------------------------
 									Class Declaration
@@ -69,7 +66,8 @@ protected: // All members here are protected, instead of private for testing pur
     vector<vector<job>> job_array; //array how jobs vector
     vector<job>* curr_jobs;
     vector<job>* next_jobs;
-    pthread_mutex_t lock;
+    pthread_mutex_t lock1;
+    pthread_mutex_t lock2;
     pthread_cond_t cond;
 
     uint num_of_rows;
