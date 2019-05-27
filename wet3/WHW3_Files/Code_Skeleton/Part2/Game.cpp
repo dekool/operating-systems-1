@@ -41,7 +41,7 @@ void Game::run() {
 	} // generation loop
 	print_board("Final Board");
 	// TODO: after adding the threads - add the destroy game
-	//_destroy_game();
+	_destroy_game();
 }
 
 void Game::_init_game() {
