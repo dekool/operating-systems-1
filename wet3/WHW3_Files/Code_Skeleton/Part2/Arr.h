@@ -31,5 +31,5 @@
         , false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false\
         , false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,\
         false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, \
-        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 #endif //CODE_SKELETON_ARR_H
