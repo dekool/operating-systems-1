@@ -49,14 +49,22 @@ bool_mat utils::read_input(string input_filename) {
     vector<string> input = utils::read_lines(input_filename);
     vector<string> line;
     vector<bool> temp_line;
+    vector<bool> zero_line;
     for (uint i = 0; i < input.size(); i++) {
         line = utils::split(input[i], DEF_MAT_DELIMITER);
+        if( i == 0 ){
+            zero_line = vector<bool>(line.size() + 2, false);
+            field.push_back(zero_line); //adding first line of zeroes
+        }
+        temp_line.push_back(false); //adding frame of zeroes
         for (uint j = 0; j < line.size(); j++) {
             temp_line.push_back(line[j] == "1"); // save as bool
         }
+        temp_line.push_back(false); //adding frame of zeroes
         field.push_back(temp_line);
         temp_line.clear();
     }
+    field.push_back(zero_line);
     return field;
 }
 

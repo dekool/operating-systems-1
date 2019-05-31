@@ -1,6 +1,6 @@
 
 #include "Consumer.h"
-
+#include "Arr.h"
 //this is the main consumer function
 void Consumer::thread_workload() {
     while(1){
@@ -35,22 +35,57 @@ void Consumer::thread_workload() {
     }
 }
 
-//TODO make this more efficient, this is only a draft to test the game
-void Consumer::calculateBoard(job job) {
-    int start = job.start_row;
-    int end = job.end_row;
+void Consumer::calculateBoard(job job){
+    //pre calculated array
+    vector<bool> convert_arr = _CONVERT;
+    //job is calculated according to the original mat without the frame
+    int start = job.start_row + 1; // add 1 to ignore first row and col of zeroes
+    int end = job.end_row + 1;
     bool_mat* board = job.curr;
     bool_mat* next_board = job.next;
-    int inner_size = board->front().size();
+    //real size of inner row
+    int inner_size = board->front().size() - 2;
+    uint mat_conv_index;  // represent 3x3 matrix converted to int
+    uint indicator;
+    for(int i = start; i <= end ; i++){
+        mat_conv_index = 0; //for each new row we calculate, we first reset the mat_conv_index
+        //adding col 1 to the mat_conv_index at the beginning of each new row
+        for(int w = i - 1 ; w <= i + 1; w++){
+            indicator = ((*board)[w][1]) ? 1 : 0;
+            mat_conv_index = mat_conv_index<<1; //shift left the index and add the indicator
+            mat_conv_index += indicator;
+        }
+        //for each cell in the row, we remove first 3 bits of the mat_conv_index
+        //and append the next row to the mat_conv_index
+        for(int j = 1; j < inner_size + 1; j++){
+            for(int k = -1 ; k < 2; k++){ //iterate over col j+1 and append the values
+                indicator = ((*board)[i+k][j+1]) ? 1 : 0;
+                mat_conv_index = mat_conv_index<<1;
+                mat_conv_index += indicator;
+            }
+            mat_conv_index = mat_conv_index & 0x1ff; //mask only the first 9 bits (which represent the matrix)
+            (*next_board)[i][j] = convert_arr[mat_conv_index]; //using the pre calculated array to find out the value
+        }
+    }
+
+}
+
+//TODO make this more efficient, this is only a draft to test the game
+/*void Consumer::calculateBoard(job job) {
+    int start = job.start_row + 1; // add 1 to ignore first row of zeroes
+    int end = job.end_row + 1;
+    bool_mat* board = job.curr;
+    bool_mat* next_board = job.next;
+    int inner_size = board->front().size() - 2;
     vector<int> v(inner_size,0);
     vector<vector<int>> temp = vector<vector<int>>(end-start + 1, v);
     for(int i = start ; i <= end ; i++){
-        for(int j = 0; j < inner_size; j++){
+        for(int j = 1; j < inner_size + 1; j++){
             for(int k = j-1; k <= j+1 ; k++){
                 for(int w = i-1 ; w <= i+1; w++){
-                    if(!(k < 0 || w < 0 || k >= inner_size || w >= board->size() || (k == j && w == i ))){
+                    if(!(k == j && w == i )){
                         if((*board)[w][k]){
-                            temp[i - start][j]++;
+                            temp[i - start][j-1]++;
                         }
                     }
                 }
@@ -58,11 +93,11 @@ void Consumer::calculateBoard(job job) {
         }
     }
     for(int i = start ; i <= end ; i++) {
-        for (int j = 0; j < inner_size; j++) {
-            if(temp[i - start][j] > 3 || temp[i - start][j] < 2){
+        for (int j = 1; j < inner_size+1; j++) {
+            if(temp[i - start][j-1] > 3 || temp[i - start][j-1] < 2){
                 (*next_board)[i][j] = false;
             }
-            else if(temp[i - start][j] == 3){
+            else if(temp[i - start][j-1] == 3){
                 (*next_board)[i][j] = true;
             }
             else{
@@ -70,7 +105,7 @@ void Consumer::calculateBoard(job job) {
             }
 
         }
-    }
+    }*/
 
     // TODO: test if this method makes it faster
     /*
@@ -144,5 +179,5 @@ void Consumer::calculateBoard(job job) {
      */
 
 
-}
+//}
 

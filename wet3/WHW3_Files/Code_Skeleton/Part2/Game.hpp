@@ -70,7 +70,7 @@ protected: // All members here are protected, instead of private for testing pur
     pthread_mutex_t lock2;
     pthread_cond_t cond;
 
-    uint num_of_rows;
+    uint num_of_rows; //real size of input matrix , without the frame we added
     uint num_of_cols;
 };
 #endif

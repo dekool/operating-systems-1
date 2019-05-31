@@ -53,15 +53,15 @@ void Game::_init_game() {
 
 	//converting input matrix to bool_mat
     *curr = utils::read_input(input_filename);
-    num_of_rows = curr->size();
-    num_of_cols = (curr->front()).size(); // assuming there is at least 1 row
+    num_of_rows = curr->size() - 2; //real num of rows and cols is without the frame
+    num_of_cols = (curr->front()).size() - 2; // assuming there is at least 1 row
     // create empty field in the next field
     vector<bool> temp_line;
-    temp_line.assign(num_of_cols, false); //create a row. all value start as false
-    next->assign(num_of_rows, temp_line); // create all the rows
+    temp_line.assign(num_of_cols + 2, false); //create a row. all value start as false
+    next->assign(num_of_rows + 2, temp_line); // create all the rows
 
     //calculating effective threads num
-    m_thread_num = (curr->size() < m_thread_num) ? curr->size() : m_thread_num;
+    m_thread_num = (num_of_rows < m_thread_num) ? num_of_rows : m_thread_num;
 
     //initialize threads
     //TODO check if start was a success
@@ -162,9 +162,9 @@ inline void Game::print_board(const char* header) {
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
         cout << u8"╔" << string(u8"═") * num_of_cols << u8"╗" << endl;
-        for (uint i = 0; i < num_of_rows; ++i) {
+        for (uint i = 1; i < num_of_rows + 1; ++i) { // real mat is from row 1 and col 1
             cout << u8"║";
-            for (uint j = 0; j < num_of_cols; ++j) {
+            for (uint j = 1; j < num_of_cols + 1; ++j) {
                 cout << ((*curr)[i][j] ? u8"█" : u8"░");
             }
             cout << u8"║" << endl;
