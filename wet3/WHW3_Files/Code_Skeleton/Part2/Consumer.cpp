@@ -1,6 +1,6 @@
 
 #include "Consumer.h"
-#include "Arr.h"
+#include "LookUpTable.h"
 //this is the main consumer function
 void Consumer::thread_workload() {
     while(1){
@@ -37,7 +37,7 @@ void Consumer::thread_workload() {
 
 void Consumer::calculateBoard(job job){
     //pre calculated array
-    vector<bool> convert_arr = _CONVERT;
+    vector<bool> look_up_table = _CONVERT;
     //job is calculated according to the original mat without the frame
     int start = job.start_row + 1; // add 1 to ignore first row and col of zeroes
     int end = job.end_row + 1;
@@ -64,7 +64,7 @@ void Consumer::calculateBoard(job job){
                 mat_conv_index += indicator;
             }
             mat_conv_index = mat_conv_index & 0x1ff; //mask only the first 9 bits (which represent the matrix)
-            (*next_board)[i][j] = convert_arr[mat_conv_index]; //using the pre calculated array to find out the value
+            (*next_board)[i][j] = look_up_table[mat_conv_index]; //using the pre calculated array to find out the value
         }
     }
 
