@@ -4,7 +4,7 @@
 TARGET := GameOfLife
 
 CXX := g++
-CXXFLAGS := -std=c++11 -g -Wall -pedantic-errors -pthread 
+CXXFLAGS := -std=c++11 -g -Wall -pedantic-errors -pthread -O3
 LDFLAGS := -lpthread -static-libstdc++
 RM := rm -f
 
