@@ -30,8 +30,7 @@ public:
 	const vector<double> gen_hist() const; // Returns the generation timing histogram  
 	const vector<tile_record> tile_hist() const; // Returns the tile timing histogram
 	uint thread_num() const; //Returns the effective number of running threads = min(thread_num, field_height)
-
-
+    void sortTileHist();    //Sort tile hist according to end time of each tile
 protected: // All members here are protected, instead of private for testing purposes
 
 	// See Game.cpp for details on these three functions
@@ -64,10 +63,11 @@ protected: // All members here are protected, instead of private for testing pur
     vector<job>* curr_jobs;
     vector<job>* next_jobs;
     pthread_mutex_t lock1;
-    pthread_mutex_t lock2;
     pthread_cond_t cond;
 
     uint num_of_rows; //real size of input matrix , without the frame we added
     uint num_of_cols;
+    std::chrono::time_point<std::chrono::system_clock> gt; //saves the time the game started
+    uint curr_gen;     //saves the current gen we are calculating
 };
 #endif

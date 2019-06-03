@@ -12,8 +12,10 @@ struct job{
     bool end_flag;  //marks if the thread should end his work
     int* threads_left; //counter of how many threads has left to finish
     pthread_mutex_t* lock1;
-    pthread_mutex_t* lock2;
     pthread_cond_t* cond;
+    std::chrono::time_point<std::chrono::system_clock>* gt;
+    uint* curr_gen;
+    uint num_of_threads;
 };
 
 #endif //CODE_SKELETON_JOB_H

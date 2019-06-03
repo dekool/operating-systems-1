@@ -57,6 +57,9 @@ bool_mat utils::read_input(string input_filename) {
     return field;
 }
 
+bool compareRecords(tile_record t1, tile_record t2){
+    return (t1.end_time < t2.end_time);
+}
 /*--------------------------------------------------------------------------------
 								String Extentions
 --------------------------------------------------------------------------------*/

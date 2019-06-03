@@ -16,7 +16,6 @@ Game::Game(game_params gameParams) : mats(2), job_array(2){
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&lock1, &attr);
-    pthread_mutex_init(&lock2, &attr);
     pthread_cond_init(&cond, NULL);
     pthread_mutexattr_destroy(&attr);
     //matrix and job vector pointers
@@ -27,6 +26,7 @@ Game::Game(game_params gameParams) : mats(2), job_array(2){
     //init matrix size
     num_of_rows = 0;
     num_of_cols = 0;
+    curr_gen = 0;
 }
 
 void Game::run() {
@@ -41,6 +41,7 @@ void Game::run() {
 		print_board(nullptr);
 	} // generation loop
 	print_board("Final Board");
+	sortTileHist();
 	_destroy_game();
 }
 
@@ -75,6 +76,9 @@ void Game::_init_game() {
     //creates jobs, only need to calculate once
     make_jobs(false, curr, next);
 
+    gt = std::chrono::system_clock::now();
+    m_tile_hist.resize(m_thread_num * m_gen_num); //allocating tile hist size in advance
+
 }
 
 void Game::make_jobs(bool end_flag, bool_mat* curr_board, bool_mat* next_board) {
@@ -88,8 +92,10 @@ void Game::make_jobs(bool end_flag, bool_mat* curr_board, bool_mat* next_board) 
         }
         //job is define in job.h
         //creates 2 jobs array, one for each iteration according to curr and next boards
-        job j1 = {curr_board, next_board, start_row, end_row, &m_tile_hist, end_flag, &threads_left, &lock1, &lock2, &cond};
-        job j2 = {next_board, curr_board, start_row, end_row, &m_tile_hist, end_flag, &threads_left, &lock1, &lock2, &cond};
+        job j1 = {curr_board, next_board, start_row, end_row, &m_tile_hist, end_flag,
+                        &threads_left, &lock1,  &cond, &gt, &curr_gen, m_thread_num};
+        job j2 = {next_board, curr_board, start_row, end_row, &m_tile_hist, end_flag,
+                        &threads_left, &lock1,  &cond, &gt, &curr_gen, m_thread_num};
         job_array[0].push_back(j1);
         job_array[1].push_back(j2);
     }
@@ -100,7 +106,7 @@ void Game::_step(uint curr_gen) {
 	// Wait for the workers to finish calculating 
 	// Swap pointers between current and next field 
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
-
+    this->curr_gen = curr_gen;
     threads_left = m_thread_num; //reset threads left each iteration
     pcQueue.pushAll(*curr_jobs); //add curr_job to the queue
     //all consumers will start to work here
@@ -131,7 +137,6 @@ void Game::_destroy_game(){
         delete m_threadpool[i];
     }
     pthread_mutex_destroy(&lock1);
-    pthread_mutex_destroy(&lock2);
     pthread_cond_destroy(&cond);
 }
 
@@ -145,6 +150,10 @@ const vector<tile_record> Game::tile_hist() const {
 
 const vector<double> Game::gen_hist() const {
     return m_gen_hist;
+}
+
+void Game::sortTileHist() {
+    std::sort(m_tile_hist.begin(), m_tile_hist.end(), compareRecords);
 }
 
 Game::~Game() {

@@ -13,14 +13,15 @@ void Consumer::thread_workload() {
         auto gen_start = std::chrono::system_clock::now();
         //calculating next board (only for the block given)
         calculateBoard(job);
+
         auto gen_end = std::chrono::system_clock::now();
         //compute calculation time and push to tile hist
         double compute_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count();
-        tile_record rec = {compute_time, m_thread_id};
-        //can be implement without locks by using current step number
-        pthread_mutex_lock(job.lock2);
-        job.tile_hist->push_back(rec);
-        pthread_mutex_unlock(job.lock2);
+        double start_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(gen_start - *(job.gt)).count();
+        double end_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - *(job.gt)).count();
+        tile_record rec = {compute_time, m_thread_id, start_time, end_time};
+        int tile_hist_index = m_thread_id + (*job.curr_gen) * job.num_of_threads;
+        (*job.tile_hist)[tile_hist_index] = rec;
 
         //updating that the thread has finished it`s job, must lock because all other threads will do the same
         pthread_mutex_lock(job.lock1);

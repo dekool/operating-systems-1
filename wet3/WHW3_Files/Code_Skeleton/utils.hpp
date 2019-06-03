@@ -17,7 +17,13 @@ string operator*(string str, size_t n);
 struct tile_record {
     double tile_compute_time; // Compute time for the tile
     uint thread_id; // The thread responsible for the compute
+    double start_time;
+    double end_time;
 };
+
+//Comparison function to use std::sort on the tile hist
+bool compareRecords(tile_record t1, tile_record t2);
+
 
 
 #endif
