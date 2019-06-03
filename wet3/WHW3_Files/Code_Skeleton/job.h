@@ -4,6 +4,7 @@
 #include "utils.hpp"
 //this is the job struct, it contains everything the thread need to know to work
 struct job{
+    uint id;
     bool_mat* curr;
     bool_mat* next;
     uint start_row;

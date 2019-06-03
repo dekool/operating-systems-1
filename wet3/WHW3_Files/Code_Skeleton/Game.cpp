@@ -92,9 +92,9 @@ void Game::make_jobs(bool end_flag, bool_mat* curr_board, bool_mat* next_board) 
         }
         //job is define in job.h
         //creates 2 jobs array, one for each iteration according to curr and next boards
-        job j1 = {curr_board, next_board, start_row, end_row, &m_tile_hist, end_flag,
+        job j1 = {i, curr_board, next_board, start_row, end_row, &m_tile_hist, end_flag,
                         &threads_left, &lock1,  &cond, &gt, &curr_gen, m_thread_num};
-        job j2 = {next_board, curr_board, start_row, end_row, &m_tile_hist, end_flag,
+        job j2 = {i, next_board, curr_board, start_row, end_row, &m_tile_hist, end_flag,
                         &threads_left, &lock1,  &cond, &gt, &curr_gen, m_thread_num};
         job_array[0].push_back(j1);
         job_array[1].push_back(j2);
