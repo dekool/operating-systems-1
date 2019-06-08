@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "C:/Users/aviv_/Documents/operating-systems-1/wet4/main.cpp" "C:/Users/aviv_/Documents/operating-systems-1/wet4/cmake-build-debug/CMakeFiles/wet4.dir/main.cpp.obj"
   "C:/Users/aviv_/Documents/operating-systems-1/wet4/malloc_1.cpp" "C:/Users/aviv_/Documents/operating-systems-1/wet4/cmake-build-debug/CMakeFiles/wet4.dir/malloc_1.cpp.obj"
+  "C:/Users/aviv_/Documents/operating-systems-1/wet4/malloc_2.cpp" "C:/Users/aviv_/Documents/operating-systems-1/wet4/cmake-build-debug/CMakeFiles/wet4.dir/malloc_2.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

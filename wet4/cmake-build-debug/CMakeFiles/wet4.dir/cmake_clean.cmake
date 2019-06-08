@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/wet4.dir/malloc_1.cpp.obj"
   "CMakeFiles/wet4.dir/main.cpp.obj"
+  "CMakeFiles/wet4.dir/malloc_2.cpp.obj"
   "wet4.pdb"
   "wet4.exe"
   "wet4.exe.manifest"

@@ -89,6 +89,12 @@
 		<Unit filename="C:/Users/aviv_/Documents/operating-systems-1/wet4/malloc_1.h">
 			<Option target="wet4"/>
 		</Unit>
+		<Unit filename="C:/Users/aviv_/Documents/operating-systems-1/wet4/malloc_2.cpp">
+			<Option target="wet4"/>
+		</Unit>
+		<Unit filename="C:/Users/aviv_/Documents/operating-systems-1/wet4/malloc_2.h">
+			<Option target="wet4"/>
+		</Unit>
 		<Unit filename="C:/Users/aviv_/Documents/operating-systems-1/wet4/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

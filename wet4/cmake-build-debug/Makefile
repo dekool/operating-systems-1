@@ -176,6 +176,33 @@ malloc_1.cpp.s:
 	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_1.cpp.s
 .PHONY : malloc_1.cpp.s
 
+malloc_2.obj: malloc_2.cpp.obj
+
+.PHONY : malloc_2.obj
+
+# target to build an object file
+malloc_2.cpp.obj:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_2.cpp.obj
+.PHONY : malloc_2.cpp.obj
+
+malloc_2.i: malloc_2.cpp.i
+
+.PHONY : malloc_2.i
+
+# target to preprocess a source file
+malloc_2.cpp.i:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_2.cpp.i
+.PHONY : malloc_2.cpp.i
+
+malloc_2.s: malloc_2.cpp.s
+
+.PHONY : malloc_2.s
+
+# target to generate assembly for a file
+malloc_2.cpp.s:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_2.cpp.s
+.PHONY : malloc_2.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -191,6 +218,9 @@ help:
 	@echo ... malloc_1.obj
 	@echo ... malloc_1.i
 	@echo ... malloc_1.s
+	@echo ... malloc_2.obj
+	@echo ... malloc_2.i
+	@echo ... malloc_2.s
 .PHONY : help
 
 
