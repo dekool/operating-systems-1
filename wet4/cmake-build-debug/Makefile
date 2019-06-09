@@ -122,33 +122,6 @@ wet4/fast:
 	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/build
 .PHONY : wet4/fast
 
-main.obj: main.cpp.obj
-
-.PHONY : main.obj
-
-# target to build an object file
-main.cpp.obj:
-	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/main.cpp.obj
-.PHONY : main.cpp.obj
-
-main.i: main.cpp.i
-
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/main.cpp.s
-.PHONY : main.cpp.s
-
 malloc_1.obj: malloc_1.cpp.obj
 
 .PHONY : malloc_1.obj
@@ -203,6 +176,60 @@ malloc_2.cpp.s:
 	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_2.cpp.s
 .PHONY : malloc_2.cpp.s
 
+test1.obj: test1.cpp.obj
+
+.PHONY : test1.obj
+
+# target to build an object file
+test1.cpp.obj:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test1.cpp.obj
+.PHONY : test1.cpp.obj
+
+test1.i: test1.cpp.i
+
+.PHONY : test1.i
+
+# target to preprocess a source file
+test1.cpp.i:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test1.cpp.i
+.PHONY : test1.cpp.i
+
+test1.s: test1.cpp.s
+
+.PHONY : test1.s
+
+# target to generate assembly for a file
+test1.cpp.s:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test1.cpp.s
+.PHONY : test1.cpp.s
+
+test2.obj: test2.cpp.obj
+
+.PHONY : test2.obj
+
+# target to build an object file
+test2.cpp.obj:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test2.cpp.obj
+.PHONY : test2.cpp.obj
+
+test2.i: test2.cpp.i
+
+.PHONY : test2.i
+
+# target to preprocess a source file
+test2.cpp.i:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test2.cpp.i
+.PHONY : test2.cpp.i
+
+test2.s: test2.cpp.s
+
+.PHONY : test2.s
+
+# target to generate assembly for a file
+test2.cpp.s:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test2.cpp.s
+.PHONY : test2.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -212,15 +239,18 @@ help:
 	@echo ... wet4
 	@echo ... edit_cache
 	@echo ... rebuild_cache
-	@echo ... main.obj
-	@echo ... main.i
-	@echo ... main.s
 	@echo ... malloc_1.obj
 	@echo ... malloc_1.i
 	@echo ... malloc_1.s
 	@echo ... malloc_2.obj
 	@echo ... malloc_2.i
 	@echo ... malloc_2.s
+	@echo ... test1.obj
+	@echo ... test1.i
+	@echo ... test1.s
+	@echo ... test2.obj
+	@echo ... test2.i
+	@echo ... test2.s
 .PHONY : help
 
 
