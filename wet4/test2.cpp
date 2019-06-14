@@ -39,7 +39,7 @@ void testMalloc(){
     _free(pointers[1]);
     assert(_num_free_blocks() == 1);
 
-    void* ptr = _calloc(_num_free_bytes());
+    void* ptr = _calloc(1,_num_free_bytes());
     assert(ptr != NULL);
     assert(ptr == pointers[1]);
     assert(_num_free_bytes() == 0);
@@ -48,7 +48,7 @@ void testMalloc(){
 
     _free(ptr);
     assert(_num_free_blocks() == 1);
-    ptr = _calloc(_num_free_bytes() - 1);
+    ptr = _calloc(1,_num_free_bytes() - 1);
     assert(ptr != NULL);
     assert(ptr == pointers[1]);
     assert(_num_free_bytes() == 0);
@@ -56,7 +56,7 @@ void testMalloc(){
 
     _free(ptr);
     assert(_num_free_blocks() == 1);
-    ptr = _calloc(_num_free_bytes() + 1);
+    ptr = _calloc(1,_num_free_bytes() + 1);
     assert(ptr != NULL);
     assert(ptr != pointers[1]);
     assert(_num_free_blocks() == 1);

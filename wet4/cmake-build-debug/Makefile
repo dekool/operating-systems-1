@@ -176,6 +176,33 @@ malloc_2.cpp.s:
 	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_2.cpp.s
 .PHONY : malloc_2.cpp.s
 
+malloc_3.obj: malloc_3.cpp.obj
+
+.PHONY : malloc_3.obj
+
+# target to build an object file
+malloc_3.cpp.obj:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_3.cpp.obj
+.PHONY : malloc_3.cpp.obj
+
+malloc_3.i: malloc_3.cpp.i
+
+.PHONY : malloc_3.i
+
+# target to preprocess a source file
+malloc_3.cpp.i:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_3.cpp.i
+.PHONY : malloc_3.cpp.i
+
+malloc_3.s: malloc_3.cpp.s
+
+.PHONY : malloc_3.s
+
+# target to generate assembly for a file
+malloc_3.cpp.s:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/malloc_3.cpp.s
+.PHONY : malloc_3.cpp.s
+
 test1.obj: test1.cpp.obj
 
 .PHONY : test1.obj
@@ -230,6 +257,33 @@ test2.cpp.s:
 	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test2.cpp.s
 .PHONY : test2.cpp.s
 
+test3.obj: test3.cpp.obj
+
+.PHONY : test3.obj
+
+# target to build an object file
+test3.cpp.obj:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test3.cpp.obj
+.PHONY : test3.cpp.obj
+
+test3.i: test3.cpp.i
+
+.PHONY : test3.i
+
+# target to preprocess a source file
+test3.cpp.i:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test3.cpp.i
+.PHONY : test3.cpp.i
+
+test3.s: test3.cpp.s
+
+.PHONY : test3.s
+
+# target to generate assembly for a file
+test3.cpp.s:
+	$(MAKE) -f CMakeFiles\wet4.dir\build.make CMakeFiles/wet4.dir/test3.cpp.s
+.PHONY : test3.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -245,12 +299,18 @@ help:
 	@echo ... malloc_2.obj
 	@echo ... malloc_2.i
 	@echo ... malloc_2.s
+	@echo ... malloc_3.obj
+	@echo ... malloc_3.i
+	@echo ... malloc_3.s
 	@echo ... test1.obj
 	@echo ... test1.i
 	@echo ... test1.s
 	@echo ... test2.obj
 	@echo ... test2.i
 	@echo ... test2.s
+	@echo ... test3.obj
+	@echo ... test3.i
+	@echo ... test3.s
 .PHONY : help
 
 

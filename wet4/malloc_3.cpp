@@ -1,0 +1,291 @@
+
+#include <memory.h>
+#include <iostream>
+#include <assert.h>
+#include "malloc_3.h"
+
+/* TODO add this here instead of h file
+struct meta_data {
+    size_t block_size;
+    bool is_free;
+};
+
+class Node{
+public:
+    Node(): data(NULL), next_node(NULL){
+
+    };
+
+    void setNext(Node* next){
+        this->next_node = next;
+    }
+
+    void setData(meta_data* data){
+        this->data = data;
+    }
+
+    meta_data* getData(){
+        return data;
+    }
+
+    Node* next(){
+        return this->next_node;
+    }
+
+    //allocates new node at the end of the heap, and puts it at the end
+    //of the linked list after last
+    static Node* allocateNode(Node* last){
+        intptr_t node_size = sizeof(Node);
+        void* ptr = sbrk(node_size);
+        if(*(int*)ptr == -1){
+            return NULL;
+        }
+        Node* node_ptr = (Node*) ptr;
+        *node_ptr = Node();
+        last->setNext(node_ptr);
+        return node_ptr;
+    }
+
+private:
+    meta_data* data;
+    Node* next_node;
+};*/
+
+Node root = Node();
+
+//Split curr node into 2 nodes first one size of var size and other the remaining size
+void split(Node* curr, size_t size){
+    assert(curr != NULL);
+    //allocating new node for the remain part of the memory
+    //and adding it after the pre splitted node in the list
+    Node *next_node = curr->next();
+    // allocating node before new meta data
+    Node *remain = (Node *) ((char *) (curr->getData() + 1) + size);
+    curr->setNext(remain);
+    remain->setNext(next_node);
+
+    //define the new meta data for the remain part after the Node space
+    meta_data* remain_meta = (meta_data *) (remain + 1); // +1 will add node size to the pointer
+    remain_meta->is_free = true;
+    //remain block size will be the remain size from the block size minus metaDara and node sizes
+    remain_meta->block_size = curr->getData()->block_size - size - sizeof(meta_data) -
+            sizeof(Node);
+    remain->setData(remain_meta);
+    curr->getData()->block_size = size;
+}
+
+//Returns the node which points to the given meta data
+Node* getMetaNode(meta_data* meta){
+    assert(meta != NULL);
+    Node* curr = root.next();
+    while(curr != NULL) {
+        if(curr->getData() == meta){
+            return curr;
+        }
+        curr = curr->next();
+    }
+    return NULL;
+}
+
+//Returns previous node to the node given
+Node* getPrevNode(Node* node){
+    assert(node != NULL);
+    Node* curr = root.next();
+    Node* last = &root;
+    while(curr != NULL) {
+        if(curr == node){
+            return last;
+        }
+        last = curr;
+        curr = curr->next();
+    }
+    return NULL;
+}
+
+// Will merge given node with it`s next node
+void merge(Node* node){
+    assert(node != NULL && node->next() != NULL);
+    meta_data* curr_meta = node->getData();
+    meta_data* next_meta = node->next()->getData();
+    // Between two nodes we have node and meta space
+    // which we don`t need after merging
+    size_t new_size = curr_meta->block_size + next_meta->block_size + sizeof(meta_data) +
+            sizeof(Node);
+    curr_meta->block_size =  new_size;
+    //removing next node from the list
+    node->setNext(node->next()->next());
+}
+
+// Will try to merge given meta to it`s adjacent metas (nodes)
+void tryToMerge(meta_data* meta){
+    assert(meta != NULL);
+    Node* curr_node = getMetaNode(meta);
+    assert(curr_node != NULL);
+    Node* prev_node = getPrevNode(curr_node);
+    assert(prev_node != NULL);
+    Node* next_node = curr_node->next();
+    //try to merge curr with next nodes
+    if(next_node != NULL){
+        if(next_node->getData()->is_free){
+            merge(curr_node);
+        }
+    }
+    //try to merge curr with prev nodes
+    //Will not merge root
+    if(prev_node != &root){
+        if(prev_node->getData()->is_free){
+            merge(prev_node);
+        }
+    }
+}
+
+
+
+void* _malloc(size_t size){
+    if(size == 0 || size > MAX_MALLOC_SIZE){
+        return NULL;
+    }
+    size += (size % 4 == 0) ? 0 : 4 - (size % 4); // Makes size be multiplication of 4
+    Node* curr = root.next();
+    Node* last = &root;
+    while(curr != NULL){
+        if(curr->getData()->is_free){
+            if(curr->getData()->block_size >= size){
+                //check if the block we found is big enough for splitting it
+                if(curr->getData()->block_size >= size + sizeof(Node) + sizeof(meta_data) + MIN_FOR_SPLIT) {
+                    split(curr, size);
+                }
+                curr->getData()->is_free = false;
+                return curr->getData() + 1; //returns the start of the block after meta_data
+            }
+        }
+        last = curr;
+        curr = curr->next();
+    }
+
+    // if we reached this, we need to allocate space at the end of the heap
+    // first we check if wilderness is free, var last will hold last node of the list
+    if(last->getData() != NULL && last->getData()->is_free){
+        //allocating space at the end of the heap for the remaining part
+        void* last_space = sbrk(size - last->getData()->block_size);
+        if(*(int*)last_space == -1){
+            return NULL;
+        }
+        last->getData()->is_free = false;
+        last->getData()->block_size = size;
+        return last->getData() + 1;
+    }
+    //allocating new node at the end of the heap
+    Node* new_node = Node::allocateNode(last);
+    void* ptr = sbrk(size + sizeof(meta_data)); //allocating space at the end of the heap
+    if(*(int*)ptr == -1){
+        return NULL;
+    }
+    meta_data* meta = (meta_data*) ptr;
+    meta->is_free = false;
+    meta->block_size = size;
+    new_node->setData(meta);
+    //returns the address of the start of the block after meta data
+    return meta + 1;
+}
+
+void* _calloc(size_t num, size_t size){
+    //malloc will check that num* size is smaller than max size and not 0
+    void* ptr = _malloc(size*num);
+    if(ptr == NULL){
+        return NULL;
+    }
+    // Zeroing all allocated memory
+    memset(ptr, 0, size*num);
+    return ptr;
+}
+
+void _free(void* p){
+    if(p == NULL){
+        return;
+    }
+    //pointer to the meta data of p
+    meta_data* meta = (meta_data*)p - 1;
+    meta->is_free = true;
+
+    //check if any adjacent block is also free and merge in that case
+    tryToMerge(meta);
+}
+
+void* _realloc(void* oldp, size_t size){
+    if(oldp == NULL){
+        return _malloc(size);
+    }
+    size += (size % 4 == 0) ? 0 : 4 - (size % 4); // Makes size be multiplication of 4
+    meta_data* meta = (meta_data*)oldp - 1;
+    //If current block is bigger try to split
+    if(meta->block_size >= size){
+        if(meta->block_size >= size + sizeof(Node) + sizeof(meta_data) + MIN_FOR_SPLIT) {
+            Node* curr = getMetaNode(meta);
+            assert(curr != NULL);
+            split(curr, size);
+        }
+        return oldp;
+    }
+    void* new_ptr = _malloc(size);
+    if(new_ptr == NULL){
+        return NULL;
+    }
+    //copies old block data to new block (even if the real user data is not at this size)
+    memcpy(new_ptr, oldp, meta->block_size);
+    meta->is_free = true; //free previous block
+    return new_ptr;
+}
+
+size_t _num_free_blocks(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        if(curr->getData()->is_free){
+            num++;
+        }
+        curr = curr->next();
+    }
+    return num;
+}
+
+size_t _num_free_bytes(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        if(curr->getData()->is_free){
+            num += curr->getData()->block_size;
+        }
+        curr = curr->next();
+    }
+    return num;
+}
+
+size_t _num_allocated_blocks(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        num++;
+        curr = curr->next();
+    }
+    return num;
+}
+size_t _num_allocated_bytes(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        num += curr->getData()->block_size;
+        curr = curr->next();
+    }
+    return num;
+}
+
+size_t _num_meta_data_bytes(){
+    size_t allocated_blocks = _num_allocated_blocks();
+    size_t meta_size = sizeof(meta_data);
+    return allocated_blocks * meta_size;
+}
+
+size_t _size_meta_data(){
+    return sizeof(meta_data);
+}

@@ -86,13 +86,13 @@ void* _malloc(size_t size){
     return meta + 1;
 }
 
-void* _calloc(size_t size){
-    void* ptr = _malloc(size);
+void* _calloc(size_t num, size_t size){
+    void* ptr = _malloc(size*num);
     if(ptr == NULL){
         return NULL;
     }
     // Zeroing all allocated memory
-    memset(ptr, 0, size);
+    memset(ptr, 0, size*num);
     return ptr;
 }
 
