@@ -1,10 +1,12 @@
 
-#include <memory.h>
-#include <iostream>
 #include <assert.h>
-#include "malloc_3.h"
+#include <cstdlib>
+#include <unistd.h>
+#include <memory>
 
-/* TODO add this here instead of h file
+#define MAX_MALLOC_SIZE 100000000
+#define MIN_FOR_SPLIT 128
+
 struct meta_data {
     size_t block_size;
     bool is_free;
@@ -49,7 +51,7 @@ public:
 private:
     meta_data* data;
     Node* next_node;
-};*/
+};
 
 Node root = Node();
 
@@ -141,7 +143,7 @@ void tryToMerge(meta_data* meta){
 
 
 
-void* _malloc(size_t size){
+void* malloc(size_t size){
     if(size == 0 || size > MAX_MALLOC_SIZE){
         return NULL;
     }
@@ -189,9 +191,9 @@ void* _malloc(size_t size){
     return meta + 1;
 }
 
-void* _calloc(size_t num, size_t size){
+void* calloc(size_t num, size_t size){
     //malloc will check that num* size is smaller than max size and not 0
-    void* ptr = _malloc(size*num);
+    void* ptr = malloc(size*num);
     if(ptr == NULL){
         return NULL;
     }
@@ -200,7 +202,7 @@ void* _calloc(size_t num, size_t size){
     return ptr;
 }
 
-void _free(void* p){
+void free(void* p){
     if(p == NULL){
         return;
     }
@@ -212,9 +214,12 @@ void _free(void* p){
     tryToMerge(meta);
 }
 
-void* _realloc(void* oldp, size_t size){
+void* realloc(void* oldp, size_t size){
     if(oldp == NULL){
-        return _malloc(size);
+        return malloc(size);
+    }
+    if(size == 0 || size > MAX_MALLOC_SIZE){
+        return NULL;
     }
     size += (size % 4 == 0) ? 0 : 4 - (size % 4); // Makes size be multiplication of 4
     meta_data* meta = (meta_data*)oldp - 1;
@@ -227,7 +232,7 @@ void* _realloc(void* oldp, size_t size){
         }
         return oldp;
     }
-    void* new_ptr = _malloc(size);
+    void* new_ptr = malloc(size);
     if(new_ptr == NULL){
         return NULL;
     }
@@ -280,12 +285,13 @@ size_t _num_allocated_bytes(){
     return num;
 }
 
-size_t _num_meta_data_bytes(){
-    size_t allocated_blocks = _num_allocated_blocks();
-    size_t meta_size = sizeof(meta_data);
-    return allocated_blocks * meta_size;
+//TODO check if need to change this to only meta data
+size_t _size_meta_data(){
+    return sizeof(meta_data)+sizeof(Node);
 }
 
-size_t _size_meta_data(){
-    return sizeof(meta_data);
+size_t _num_meta_data_bytes(){
+    size_t allocated_blocks = _num_allocated_blocks();
+    size_t meta_size = _size_meta_data();
+    return allocated_blocks * meta_size;
 }

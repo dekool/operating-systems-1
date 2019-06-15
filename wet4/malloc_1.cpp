@@ -1,6 +1,9 @@
-#include "malloc_1.h"
+#include <unistd.h>
+#include <cstdlib>
 
-void* _malloc(std::size_t size){
+#define MAX_MALLOC_SIZE 100000000
+
+void* malloc(std::size_t size){
     if(size == 0 || size > MAX_MALLOC_SIZE){
         return NULL;
     }
