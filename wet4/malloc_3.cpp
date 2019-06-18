@@ -7,6 +7,18 @@
 #define MAX_MALLOC_SIZE 100000000
 #define MIN_FOR_SPLIT 128
 
+int align_root() {
+    void* start_addr = sbrk(0);
+    intptr_t start_addr_int = reinterpret_cast<intptr_t>(start_addr);
+    // Makes start_addr be multiplication of 4
+    int addr_to_add= (start_addr_int % 4 == 0) ? 0 : 4 - (start_addr_int % 4);
+    void* new_start_addr = sbrk(addr_to_add);
+    if(*(int*)new_start_addr == -1){
+        return -1;
+    }
+    return 0;
+}
+
 struct meta_data {
     size_t block_size;
     bool is_free;
@@ -53,6 +65,7 @@ private:
     Node* next_node;
 };
 
+int aligned_root = align_root();
 Node root = Node();
 
 //Split curr node into 2 nodes first one size of var size and other the remaining size
