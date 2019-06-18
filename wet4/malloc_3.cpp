@@ -232,6 +232,58 @@ void* realloc(void* oldp, size_t size){
         }
         return oldp;
     }
+    else {
+        // check if we can merge with next node before trying to malloc
+        Node* curr_node = getMetaNode(meta);
+        Node* next_node = curr_node->next();
+        //try to merge curr with next nodes
+        if(next_node != NULL){
+            if(next_node->getData()->is_free && meta->block_size + next_node->getData()->block_size >= size){
+                merge(curr_node);
+                // check if we need to split after the merge
+                if(meta->block_size >= size + sizeof(Node) + sizeof(meta_data) + MIN_FOR_SPLIT) {
+                    Node* curr = getMetaNode(meta);
+                    assert(curr != NULL);
+                    split(curr, size);
+                }
+                return oldp;
+            }
+        }
+        else {
+            // if this is the last node (next_node == NULL) - we need to check if there is an free block big enough
+            // if there is, call malloc. if there isn't - expand the wilderness
+            Node* curr = root.next();
+            Node* last = &root;
+            while(curr != NULL) {
+                if(curr->getData()->is_free){
+                    if(curr->getData()->block_size >= size){
+                        //check if the block we found is big enough for splitting it
+                        if(curr->getData()->block_size >= size + sizeof(Node) + sizeof(meta_data) + MIN_FOR_SPLIT) {
+                            split(curr, size);
+                        }
+                        // we found new block for us :)
+                        curr->getData()->is_free = false;
+                        void* new_ptr = curr->getData() + 1;
+                        //copies old block data to new block (even if the real user data is not at this size)
+                        memcpy(new_ptr, oldp, meta->block_size);
+                        meta->is_free = true; //free previous block
+                        //check if any adjacent block is also free and merge in that case
+                        tryToMerge(meta);
+                        return new_ptr;
+                    }
+                }
+                last = curr;
+                curr = curr->next();
+            }
+            // if we reached here - expand the last block to avoid mem-copying
+            void* last_space = sbrk(size - last->getData()->block_size);
+            if(*(int*)last_space == -1){
+                return NULL;
+            }
+            last->getData()->block_size = size;
+            return last->getData() + 1;
+        }
+    }
     void* new_ptr = malloc(size);
     if(new_ptr == NULL){
         return NULL;
