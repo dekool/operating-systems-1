@@ -50,10 +50,10 @@ private:
     meta_data* data;
     Node* next_node;
 };
-void* _malloc(size_t size);
-void* _calloc(size_t num, size_t size);
-void _free(void* p);
-void* _realloc(void* oldp, size_t size);
+void* malloc(size_t size);
+void* calloc(size_t num, size_t size);
+void free(void* p);
+void* realloc(void* oldp, size_t size);
 size_t _num_free_blocks();
 size_t _num_free_bytes();
 size_t _num_allocated_blocks();

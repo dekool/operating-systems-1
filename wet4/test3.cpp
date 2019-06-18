@@ -2,7 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <time.h>
-
+#include "malloc_3.cpp"
 
 
 #define TEST_NUM 10
@@ -50,7 +50,7 @@ void testMalloc() {
     p1 = malloc(100); //should split the 300 block
     assert(p1 == pointers[2]);
     assert(_num_free_blocks() == 1);
-    assert(_num_free_bytes() == 200 - _size_meta_data() - 8);
+    assert(_num_free_bytes() == 200 - _size_meta_data()); // the new splited block has the remaining size-the meta_data
 
     free(p1); //should merge with next block
     assert(_num_free_blocks() == 1);

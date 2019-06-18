@@ -2,11 +2,77 @@
 #include <iostream>
 #include <assert.h>
 #include <time.h>
-#include "malloc_2.cpp"
+#include "malloc_2.h"
 
 
 #define TEST_NUM 10
 void testMalloc();
+
+// add these function because it can't overload them
+// ###############################################################
+size_t _num_free_blocks();
+size_t _num_free_bytes();
+size_t _num_allocated_blocks();
+size_t _num_allocated_bytes();
+size_t _num_meta_data_bytes();
+size_t _size_meta_data();
+
+Node root = Node();
+
+size_t _num_free_blocks(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        if(curr->getData()->is_free){
+            num++;
+        }
+        curr = curr->next();
+    }
+    return num;
+}
+
+size_t _num_free_bytes(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        if(curr->getData()->is_free){
+            num += curr->getData()->block_size;
+        }
+        curr = curr->next();
+    }
+    return num;
+}
+
+size_t _num_allocated_blocks(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        num++;
+        curr = curr->next();
+    }
+    return num;
+}
+size_t _num_allocated_bytes(){
+    size_t num = 0;
+    Node* curr = root.next();
+    while(curr != NULL){
+        num += curr->getData()->block_size;
+        curr = curr->next();
+    }
+    return num;
+}
+
+//TODO check if this needs to be only meta or node as well
+size_t _size_meta_data(){
+    return sizeof(meta_data) + sizeof(Node);
+}
+
+size_t _num_meta_data_bytes(){
+    size_t allocated_blocks = _num_allocated_blocks();
+    size_t meta_size = _size_meta_data();
+    return allocated_blocks * meta_size;
+}
+// ##################################################################
 
 int main (int argc, char *argv[]) {
     testMalloc();

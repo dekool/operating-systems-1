@@ -239,6 +239,8 @@ void* realloc(void* oldp, size_t size){
     //copies old block data to new block (even if the real user data is not at this size)
     memcpy(new_ptr, oldp, meta->block_size);
     meta->is_free = true; //free previous block
+    //check if any adjacent block is also free and merge in that case
+    tryToMerge(meta);
     return new_ptr;
 }
 
