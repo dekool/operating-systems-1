@@ -3,22 +3,12 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <memory>
+#include <iostream>
 
 #define MAX_MALLOC_SIZE 100000000
 #define MIN_FOR_SPLIT 128
-
-int align_root() {
-    void* start_addr = sbrk(0);
-    intptr_t start_addr_int = reinterpret_cast<intptr_t>(start_addr);
-    // Makes start_addr be multiplication of 4
-    int addr_to_add= (start_addr_int % 4 == 0) ? 0 : 4 - (start_addr_int % 4);
-    void* new_start_addr = sbrk(addr_to_add);
-    if(*(int*)new_start_addr == -1){
-        return -1;
-    }
-    return 0;
-}
-
+//TODO remove this function and it`s implementation
+void printList();
 struct meta_data {
     size_t block_size;
     bool is_free;
@@ -65,8 +55,39 @@ private:
     Node* next_node;
 };
 
+int align_root();
+void split(Node* curr, size_t size);
+Node* getMetaNode(meta_data* meta);
+Node* getPrevNode(Node* node);
+void merge(Node* node);
+void tryToMerge(meta_data* meta);
+
+
 int aligned_root = align_root();
 Node root = Node();
+//TODO remove this function
+void printList(){
+    Node* curr = root.next();
+    while(curr != NULL){
+        const char* s = (curr->getData()->is_free) ? "free":"not_free";
+        printf("%d(%s), ", curr->getData()->block_size , s );
+        curr = curr->next();
+    }
+    printf("\n");
+}
+
+int align_root() {
+    void* start_addr = sbrk(0);
+    intptr_t start_addr_int = reinterpret_cast<intptr_t>(start_addr);
+    // Makes start_addr be multiplication of 4
+    int addr_to_add= (start_addr_int % 4 == 0) ? 0 : 4 - (start_addr_int % 4);
+    void* new_start_addr = sbrk(addr_to_add);
+    if(*(int*)new_start_addr == -1){
+        return -1;
+    }
+    return 0;
+}
+
 
 //Split curr node into 2 nodes first one size of var size and other the remaining size
 void split(Node* curr, size_t size){
@@ -87,6 +108,8 @@ void split(Node* curr, size_t size){
             sizeof(Node);
     remain->setData(remain_meta);
     curr->getData()->block_size = size;
+    //we try to merge the remain meta
+    tryToMerge(remain_meta);
 }
 
 //Returns the node which points to the given meta data
@@ -166,11 +189,11 @@ void* malloc(size_t size){
     while(curr != NULL){
         if(curr->getData()->is_free){
             if(curr->getData()->block_size >= size){
+                curr->getData()->is_free = false;
                 //check if the block we found is big enough for splitting it
                 if(curr->getData()->block_size >= size + sizeof(Node) + sizeof(meta_data) + MIN_FOR_SPLIT) {
                     split(curr, size);
                 }
-                curr->getData()->is_free = false;
                 return curr->getData() + 1; //returns the start of the block after meta_data
             }
         }
@@ -222,7 +245,6 @@ void free(void* p){
     //pointer to the meta data of p
     meta_data* meta = (meta_data*)p - 1;
     meta->is_free = true;
-
     //check if any adjacent block is also free and merge in that case
     tryToMerge(meta);
 }
@@ -251,7 +273,8 @@ void* realloc(void* oldp, size_t size){
         Node* next_node = curr_node->next();
         //try to merge curr with next nodes
         if(next_node != NULL){
-            if(next_node->getData()->is_free && meta->block_size + next_node->getData()->block_size >= size){
+            if(next_node->getData()->is_free && (meta->block_size + next_node->getData()->block_size +
+                                                        sizeof(meta_data) + sizeof(Node) )>= size){
                 merge(curr_node);
                 // check if we need to split after the merge
                 if(meta->block_size >= size + sizeof(Node) + sizeof(meta_data) + MIN_FOR_SPLIT) {
@@ -352,7 +375,6 @@ size_t _num_allocated_bytes(){
     return num;
 }
 
-//TODO check if need to change this to only meta data
 size_t _size_meta_data(){
     return sizeof(meta_data)+sizeof(Node);
 }
