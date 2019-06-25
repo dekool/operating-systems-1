@@ -1,5 +1,5 @@
 
-#include <cstdlib>
+#include <stdlib.h>
 #include <unistd.h>
 #include <memory>
 
@@ -115,7 +115,7 @@ void* realloc(void* oldp, size_t size){
         return NULL;
     }
     meta_data* meta = (meta_data*)oldp - 1;
-    if(meta->block_size > size){
+    if(meta->block_size >= size){
         return oldp;
     }
     void* new_ptr = malloc(size);
@@ -171,7 +171,6 @@ size_t _num_allocated_bytes(){
     return num;
 }
 
-//TODO check if this needs to be only meta or node as well
 size_t _size_meta_data(){
     return sizeof(meta_data) + sizeof(Node);
 }

@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include <cstdlib>
+#include <stdlib.h>
 
 #define MAX_MALLOC_SIZE 100000000
 

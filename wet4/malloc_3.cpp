@@ -1,14 +1,12 @@
 
 #include <assert.h>
-#include <cstdlib>
+#include <stdlib.h>
 #include <unistd.h>
 #include <memory>
-#include <iostream>
 
 #define MAX_MALLOC_SIZE 100000000
 #define MIN_FOR_SPLIT 128
-//TODO remove this function and it`s implementation
-void printList();
+
 struct meta_data {
     size_t block_size;
     bool is_free;
@@ -65,16 +63,6 @@ void tryToMerge(meta_data* meta);
 
 int aligned_root = align_root();
 Node root = Node();
-//TODO remove this function
-void printList(){
-    Node* curr = root.next();
-    while(curr != NULL){
-        const char* s = (curr->getData()->is_free) ? "free":"not_free";
-        printf("%d(%s), ", curr->getData()->block_size , s );
-        curr = curr->next();
-    }
-    printf("\n");
-}
 
 int align_root() {
     void* start_addr = sbrk(0);
